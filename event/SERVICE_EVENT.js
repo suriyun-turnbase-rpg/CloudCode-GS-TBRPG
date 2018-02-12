@@ -26,8 +26,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // ====================================================================================================
+
 require("GAME_DATA_ENUM");
 require("GAME_DATA");
+require("HELPERS");
+
 var logger = Spark.getLog();
 var gsData = Spark.getData();
 var target = gsData.TARGET;
