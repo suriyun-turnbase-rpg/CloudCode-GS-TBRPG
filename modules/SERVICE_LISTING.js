@@ -56,8 +56,8 @@ function GetCurrencyList()
     var softCurrencyId = gameDatabase.currencies.SOFT_CURRENCY;
     var hardCurrencyId = gameDatabase.currencies.HARD_CURRENCY;
     var list = [];
-    list.push({ "id" : playerId + "_" + softCurrencyId, "playerId" : playerId, "dataId" : softCurrencyId, "amount" : player.getBalance(softCurrencyId) });
-    list.push({ "id" : playerId + "_" + hardCurrencyId, "playerId" : playerId, "dataId" : hardCurrencyId, "amount" : player.getBalance(hardCurrencyId) });
+    list.push(GetCurrency(playerId, softCurrencyId));
+    list.push(GetCurrency(playerId, hardCurrencyId));
     Spark.setScriptData("list", list);
 }
 
