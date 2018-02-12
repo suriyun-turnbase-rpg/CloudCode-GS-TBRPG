@@ -34,6 +34,11 @@ var colPlayerUnlockItem = Spark.runtimeCollection("playerUnlockItem");
 var colPlayerClearStage = Spark.runtimeCollection("playerClearStage");
 var colPlayerBattle = Spark.runtimeCollection("playerBattle");
 
+function RandomRange(min, max)
+{
+    return Math.random() * (max - min) + min;
+}
+
 function CalculateIntAttribute(currentLevel, maxLevel, minValue, maxValue, growth)
 {
     if (currentLevel <= 0)
@@ -82,7 +87,7 @@ function CreatePlayerBattle(playerId, dataId, session)
         "playerId" : playerId,
         "dataId" : dataId,
         "session" : session,
-        "battleResult" : 0,
+        "battleResult" : ENUM_BATTLE_RESULT_NONE,
         "rating" : 0,
     };
 }
@@ -219,7 +224,7 @@ function DecreasePlayerStamina(playerId, staminaType, decreaseAmount)
     {
         stamina.amount -= decreaseAmount;
         colPlayerStamina.update({ "_id" : stamina._id }, stamina);
-        UpdatePlayerStamina(playerId, staminaId);
+        UpdatePlayerStamina(playerId, staminaType);
         return true;
     }
     return false;
@@ -258,7 +263,7 @@ function UpdatePlayerStamina(playerId, staminaType)
                 devideAmount = 1000;
                 break;
         }
-        var recoveryAmount = Math.floor(diffTimeInMillisecond / devideAmount) / staminaTable.recoverDuration;
+        var recoveryAmount = Math.floor((diffTimeInMillisecond / devideAmount) / staminaTable.recoverDuration);
         stamina.amount += recoveryAmount;
         if (stamina.amount > maxStamina)
             stamina.amount = maxStamina;
@@ -272,6 +277,12 @@ function UpdateAllPlayerStamina(playerId)
     UpdatePlayerStamina(playerId, "STAGE");
 }
 
+function GetCurrency(playerId, dataId)
+{
+    var player = Spark.loadPlayer(playerId);
+    return { "id" : playerId + "_" + dataId, "playerId" : playerId, "dataId" : dataId, "amount" : player.getBalance(dataId) };
+}
+
 function GetStamina(playerId, dataId)
 {
     var stamina = colPlayerStamina.findOne({ "playerId" : playerId, "dataId" : dataId });
@@ -281,6 +292,12 @@ function GetStamina(playerId, dataId)
         colPlayerStamina.insert(stamina);
     }
     return stamina;
+}
+
+function GetPlayer(playerId)
+{
+    var player = Spark.loadPlayer(playerId);
+    return { "id" : playerId, "profileName" : player.getDisplayName(), "exp" : player.getScriptData("exp"), "selectedFormation" : player.getScriptData("selectedFormation") };
 }
 
 function AddItems(playerId, dataId, amount)
@@ -332,7 +349,7 @@ function AddItems(playerId, dataId, amount)
 
 function HelperSetFormation(playerId, characterId, formationName, position)
 {
-    if (characterId.length > 0)
+    if (characterId && characterId.length > 0)
     {
         var oldFormation = colPlayerFormation.findOne({ "playerId" : playerId, "dataId" : formationName, "itemId" : characterId });
         if (oldFormation)
