@@ -36,17 +36,72 @@ var colPlayerBattle = Spark.runtimeCollection("playerBattle");
 
 function LevelUpItem(itemId, materials)
 {
-    
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
 }
 
 function EvolveItem(itemId, materials)
 {
-    
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
 }
 
 function SellItems(items)
 {
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    var returnCurrency = 0;
+    var updateItems = [];
+    var deleteItemIds = [];
+    var updateCurrencies = [];
+    var sellingItems = [];
     
+    for (var sellingItemId in items)
+    {
+        var foundItem = colPlayerItem.findOne({ "_id" : { "$oid" : sellingItemId }, "playerId" : playerId });
+        if (foundItem == null)
+        {
+            continue;
+        }
+
+        if (CanSellItem(foundItem))
+        {
+            sellingItems.push(foundItem);
+        }
+    }
+    var countSellingItems = sellingItems.length;
+    for (var i = 0; i < countSellingItems; ++i)
+    {
+        var sellingItem = sellingItems[i];
+        var usingAmount = items[sellingItem._id.$oid];
+        if (usingAmount > sellingItem.amount)
+        {
+            usingAmount = sellingItem.amount;
+        }
+        returnCurrency += CalculateItemSellPrice(sellingItem) * usingAmount;
+        sellingItem.amount -= usingAmount;
+        if (sellingItem.amount > 0)
+        {
+            updateItems.Add(sellingItem);
+        }
+        else
+        {
+            deleteItemIds.Add(sellingItem._id.$oid);
+        }
+    }
+    var softCurrencyId = gameDatabase.currencies.SOFT_CURRENCY;
+    player.credit(softCurrencyId, returnCurrency, "Sell Items");
+    var countDeleteItemIds = deleteItemIds.length;
+    for (var i = 0; i < countDeleteItemIds; ++i)
+    {
+        var deleteItemId = deleteItemIds[i];
+        colPlayerItem.remove({ "_id" : { "$oid" : deleteItemId } });
+    }
+    var softCurrency = GetCurrency(playerId, softCurrencyId);
+    updateCurrencies.push(softCurrency);
+    Spark.setScriptData("updateItems", updateItems);
+    Spark.setScriptData("deleteItemIds", deleteItemIds);
+    Spark.setScriptData("updateCurrencies", updateCurrencies);
 }
 
 function EquipItem(characterId, equipmentId, equipPosition)
@@ -172,7 +227,9 @@ function OpenLootBox(lootBoxDataId, packIndex)
             {
                 var rewardItem = RandomLootBoxReward(lootBox);
                 if (!rewardItem)
+                {
                     continue;
+                }
                     
                 var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
                 if (addItemsResult.success)

@@ -96,6 +96,11 @@ function RandomLootBoxReward(lootBox)
     return undefined;
 }
 
+function CanSellItem(itemId)
+{
+    return true;
+}
+
 function CalculateIntAttribute(currentLevel, maxLevel, minValue, maxValue, growth)
 {
     if (currentLevel <= 0)
@@ -136,6 +141,11 @@ function CalculateLevel(exp)
         remainExp -= nextExp;
     }
     return level;
+}
+
+function CalculateItemSellPrice(item)
+{
+    return 0;
 }
 
 function CreatePlayerBattle(playerId, dataId, session)
