@@ -30,8 +30,34 @@
 require("GAME_DATA_ENUM");
 require("GAME_DATA");
 require("HELPERS");
+require("SERVICE_LISTING");
 
 var logger = Spark.getLog();
 var gsData = Spark.getData();
 var target = gsData.TARGET;
 var data = gsData.DATA;
+
+if (target === "GetItemList")
+{
+    GetItemList();
+}
+else if (target === "GetCurrencyList")
+{
+    GetCurrencyList();
+}
+else if (target === "GetStaminaList")
+{
+    GetStaminaList();
+}
+else if (target === "GetFormationList")
+{
+    GetFormationList();
+}
+else if (target === "GetUnlockItemList")
+{
+    GetUnlockItemList();
+}
+else if (target === "GetClearStageList")
+{
+    GetClearStageList();
+}
