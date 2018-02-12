@@ -37,26 +37,40 @@ var colPlayerBattle = Spark.runtimeCollection("playerBattle");
 function GetItemList()
 {
     var player = Spark.getPlayer();
-    var userId = player.getPlayerId();
+    var playerId = player.getPlayerId();
     var list = [];
-    var result = colPlayerItem.find({ "userId" : userId });
+    var result = colPlayerItem.find({ "playerId" : playerId });
     while (result.hasNext())
     {
         var entry = result.next();
+        entry.id = entry._id.$oid;
         list.push(entry);
     }
+    Spark.setScriptData("list", list);
+}
+
+function GetCurrencyList()
+{
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    var softCurrencyId = gameDatabase.currencies.SOFT_CURRENCY;
+    var hardCurrencyId = gameDatabase.currencies.HARD_CURRENCY;
+    var list = [];
+    list.push({ "id" : playerId + "_" + softCurrencyId, "playerId" : playerId, "dataId" : softCurrencyId, "amount" : player.getBalance(softCurrencyId) });
+    list.push({ "id" : playerId + "_" + hardCurrencyId, "playerId" : playerId, "dataId" : hardCurrencyId, "amount" : player.getBalance(hardCurrencyId) });
     Spark.setScriptData("list", list);
 }
 
 function GetStaminaList()
 {
     var player = Spark.getPlayer();
-    var userId = player.getPlayerId();
+    var playerId = player.getPlayerId();
     var list = [];
-    var result = colPlayerStamina.find({ "userId" : userId });
+    var result = colPlayerStamina.find({ "playerId" : playerId });
     while (result.hasNext())
     {
         var entry = result.next();
+        entry.id = entry._id;
         list.push(entry);
     }
     Spark.setScriptData("list", list);
@@ -65,12 +79,13 @@ function GetStaminaList()
 function GetFormationList()
 {
     var player = Spark.getPlayer();
-    var userId = player.getPlayerId();
+    var playerId = player.getPlayerId();
     var list = [];
-    var result = colPlayerFormation.find({ "userId" : userId });
+    var result = colPlayerFormation.find({ "playerId" : playerId });
     while (result.hasNext())
     {
         var entry = result.next();
+        entry.id = entry._id;
         list.push(entry);
     }
     Spark.setScriptData("list", list);
@@ -79,12 +94,13 @@ function GetFormationList()
 function GetUnlockItemList()
 {
     var player = Spark.getPlayer();
-    var userId = player.getPlayerId();
+    var playerId = player.getPlayerId();
     var list = [];
-    var result = colPlayerUnlockItem.find({ "userId" : userId });
+    var result = colPlayerUnlockItem.find({ "playerId" : playerId });
     while (result.hasNext())
     {
         var entry = result.next();
+        entry.id = entry._id;
         list.push(entry);
     }
     Spark.setScriptData("list", list);
@@ -93,12 +109,13 @@ function GetUnlockItemList()
 function GetClearStageList()
 {
     var player = Spark.getPlayer();
-    var userId = player.getPlayerId();
+    var playerId = player.getPlayerId();
     var list = [];
-    var result = colPlayerClearStage.find({ "userId" : userId });
+    var result = colPlayerClearStage.find({ "playerId" : playerId });
     while (result.hasNext())
     {
         var entry = result.next();
+        entry.id = entry._id;
         list.push(entry);
     }
     Spark.setScriptData("list", list);
