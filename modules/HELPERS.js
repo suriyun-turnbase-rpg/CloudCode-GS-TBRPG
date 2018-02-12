@@ -39,6 +39,63 @@ function RandomRange(min, max)
     return Math.random() * (max - min) + min;
 }
 
+function WeightedRandom(weights, noResultWeight)
+{
+    // Usage example: WeightedRandom({"a":0.5,"b":0.3,"c":0.2}); //Have chance to receives a = 50%, b = 30%, c = 20%
+    
+    if (!noResultWeight)
+        noResultWeight = 0;
+        
+    var keys = [];
+    var sum = 0;
+    for (var key in weights)
+    {
+        var weight = weights[key];
+        sum += weight;
+        keys.push(key);
+    }
+    
+    if (keys.length === 0)
+        return undefined;
+    
+    var roll = RandomRange(0, sum + noResultWeight)
+    var selected = keys[keys.length - 1];
+    for (var key in weights)
+    {
+        var weight = weights[key];
+        if (roll < weight)
+        {
+            selected = key;
+            break;
+        }
+        roll -= weight;
+    }
+    
+    return selected;
+}
+
+function RandomLootBoxReward(lootBox)
+{
+    var lootboxRewards = lootBox.lootboxRewards;
+    var generatedResult = {};
+    var generatedWeight = {};
+    var countLootboxRewards = lootboxRewards.length;
+    for (var i = 0; i < countLootboxRewards; ++i)
+    {
+        var lootboxReward = lootboxRewards[i];
+        var id = "_" + i;
+        generatedResult[id] = lootboxReward;
+        generatedWeight[id] = lootboxReward.randomWeight;
+    }
+    
+    var takenId = WeightedRandom(generatedWeight, 0);
+    if (takenId)
+    {
+        return generatedResult[takenId];
+    }
+    return undefined;
+}
+
 function CalculateIntAttribute(currentLevel, maxLevel, minValue, maxValue, growth)
 {
     if (currentLevel <= 0)
