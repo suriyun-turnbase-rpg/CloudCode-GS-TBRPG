@@ -37,4 +37,5 @@ var newPlayer = Spark.getData().newPlayer;
 if (newPlayer)
 {
     SetNewPlayerData(userId);
+    UpdateAllPlayerStamina(userId);
 }
