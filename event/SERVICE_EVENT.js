@@ -31,6 +31,7 @@ require("GAME_DATA_ENUM");
 require("GAME_DATA");
 require("HELPERS");
 require("SERVICE_LISTING");
+require("SERVICE_BATTLE");
 
 var logger = Spark.getLog();
 var gsData = Spark.getData();
@@ -60,4 +61,24 @@ else if (target === "GetUnlockItemList")
 else if (target === "GetClearStageList")
 {
     GetClearStageList();
+}
+else if (target == "StartStage")
+{
+    StartStage(data.stageDataId);
+}
+else if (target == "FinishStage")
+{
+    FinishStage(data.session, data.battleResult, data.deadCharacters);
+}
+else if (target == "ReviveCharacters")
+{
+    ReviveCharacters();
+}
+else if (target == "SelectFormation")
+{
+    SelectFormation(data.formationName);
+}
+else if (target == "SetFormation")
+{
+    SetFormation(data.characterId, data.formationName, data.position);
 }
