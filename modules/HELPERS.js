@@ -76,86 +76,90 @@ function CalculateLevel(exp)
     return level;
 }
 
-function CreatePlayerBattle()
+function CreatePlayerBattle(playerId, dataId, session)
 {
     return {
-        "userId" : "",
-        "dataId" : "",
-        "session" : "",
+        "playerId" : playerId,
+        "dataId" : dataId,
+        "session" : session,
         "battleResult" : 0,
         "rating" : 0,
     };
 }
 
-function CreatePlayerClearStage()
+function CreatePlayerClearStage(playerId, dataId)
 {
     return {
-        "userId" : "",
-        "dataId" : "",
+        "_id" : playerId + "_" + dataId,
+        "playerId" : playerId,
+        "dataId" : dataId,
         "bestRating" : 0,
     }
 }
 
-function CreatePlayerFormation()
+function CreatePlayerFormation(playerId, dataId, position)
 {
     return {
-        "userId" : "",
-        "dataId" : "",
-        "position" : 0,
+        "_id" : playerId + "_" + dataId + "_" + position,
+        "playerId" : playerId,
+        "dataId" : dataId,
+        "position" : position,
         "itemId" : "",
     }
 }
 
-function CreatePlayerItem()
+function CreatePlayerItem(playerId, dataId)
 {
     return {
-        "userId" : "",
-        "dataId" : "",
-        "amount" : 0,
+        "playerId" : playerId,
+        "dataId" : dataId,
+        "amount" : 1,
         "exp" : 0,
         "equipItemId" : "",
         "equipPosition" : ""
     };
 }
 
-function CreatePlayerStamina()
+function CreatePlayerStamina(playerId, dataId)
 {
     return {
-        "userId" : "",
-        "dataId" : "",
+        "_id" : playerId + "_" + dataId,
+        "playerId" : playerId,
+        "dataId" : dataId,
         "amount" : 0,
         "recoveredTime" : 0,
     };
 }
 
-function CreatePlayerUnlockItem()
+function CreatePlayerUnlockItem(playerId, dataId)
 {
     return {
-        "userId" : "",
-        "dataId" : "",
+        "_id" : playerId + "_" + dataId,
+        "playerId" : playerId,
+        "dataId" : dataId,
         "amount" : 0,
     };
 }
     
-function SetNewPlayerData(userId)
+function SetNewPlayerData(playerId)
 {
     var firstFormation = gameDatabase.formations[0];
-    var player = Spark.loadPlayer(userId);
+    var player = Spark.loadPlayer(playerId);
     player.setScriptData("exp", 0);
     player.setScriptData("selectedFormation", firstFormation);
     
-    colPlayerClearStage.remove({ "userId" : userId });
-    colPlayerFormation.remove({ "userId" : userId });
-    colPlayerItem.remove({ "userId" : userId });
-    colPlayerStamina.remove({ "userId" : userId });
-    colPlayerUnlockItem.remove({ "userId" : userId });
+    colPlayerClearStage.remove({ "playerId" : playerId });
+    colPlayerFormation.remove({ "playerId" : playerId });
+    colPlayerItem.remove({ "playerId" : playerId });
+    colPlayerStamina.remove({ "playerId" : playerId });
+    colPlayerUnlockItem.remove({ "playerId" : playerId });
     
     var startItems = gameDatabase.startItems;
     var countStartItems = startItems.length;
     for (var i = 0; i < countStartItems; ++i)
     {
         var startItem = startItems[i];
-        var addItemsResult = AddItems(userId, startItem.id, startItem.amount);
+        var addItemsResult = AddItems(playerId, startItem.id, startItem.amount);
         if (addItemsResult.success)
         {
             var createItems = addItemsResult.createItems;
@@ -166,7 +170,7 @@ function SetNewPlayerData(userId)
             {
                 var createItem = createItems[j];
                 colPlayerItem.insert(createItem);
-                HelperUnlockItem(userId, startItem.id);
+                HelperUnlockItem(playerId, startItem.id);
             }
             for (var j = 0; j < countUpdateItems; ++j)
             {
@@ -181,7 +185,7 @@ function SetNewPlayerData(userId)
     for (var i = 0; i < countStartCharacters; ++i)
     {
         var startCharacter = startCharacters[i];
-        var addItemsResult = AddItems(userId, startCharacter, 1);
+        var addItemsResult = AddItems(playerId, startCharacter, 1);
         if (addItemsResult.success)
         {
             var createItems = addItemsResult.createItems;
@@ -192,8 +196,8 @@ function SetNewPlayerData(userId)
             {
                 var createItem = createItems[j];
                 colPlayerItem.insert(createItem);
-                HelperUnlockItem(userId, startItem.id);
-                HelperSetFormation(userId, createItem._id.$oid, firstFormation, i);
+                HelperUnlockItem(playerId, startItem.id);
+                HelperSetFormation(playerId, createItem._id.$oid, firstFormation, i);
             }
             for (var j = 0; j < countUpdateItems; ++j)
             {
@@ -204,32 +208,32 @@ function SetNewPlayerData(userId)
     }
 }
 
-function DecreasePlayerStamina(userId, staminaType, decreaseAmount)
+function DecreasePlayerStamina(playerId, staminaType, decreaseAmount)
 {
     var staminaTable = gameDatabase.staminas[staminaType];
     if (!staminaTable)
         return;
     
-    var stamina = GetStamina(userId, staminaTable.id);
+    var stamina = GetStamina(playerId, staminaTable.id);
     if (stamina.amount >= decreaseAmount)
     {
         stamina.amount -= decreaseAmount;
         colPlayerStamina.update({ "_id" : stamina._id }, stamina);
-        UpdatePlayerStamina(userId, staminaId);
+        UpdatePlayerStamina(playerId, staminaId);
         return true;
     }
     return false;
 }
 
-function UpdatePlayerStamina(userId, staminaType)
+function UpdatePlayerStamina(playerId, staminaType)
 {
     var staminaTable = gameDatabase.staminas[staminaType];
     if (!staminaTable)
         return;
     
-    var player = Spark.loadPlayer(userId);
+    var player = Spark.loadPlayer(playerId);
     var exp = player.getScriptData("exp");
-    var stamina = GetStamina(userId, staminaTable.id);
+    var stamina = GetStamina(playerId, staminaTable.id);
     var currentLevel = CalculateLevel(exp);
     var maxLevel = gameDatabase.playerMaxLevel;
     var maxAmountTable = staminaTable.maxAmountTable;
@@ -263,32 +267,30 @@ function UpdatePlayerStamina(userId, staminaType)
     }
 }
 
-function UpdateAllPlayerStamina(userId)
+function UpdateAllPlayerStamina(playerId)
 {
-    UpdatePlayerStamina(userId, "STAGE");
+    UpdatePlayerStamina(playerId, "STAGE");
 }
 
-function GetStamina(userId, dataId)
+function GetStamina(playerId, dataId)
 {
-    var stamina = colPlayerStamina.findOne({ "dataId" : dataId, "userId" : userId });
+    var stamina = colPlayerStamina.findOne({ "playerId" : playerId, "dataId" : dataId });
     if (stamina == null)
     {
-        stamina = CreatePlayerStamina();
-        stamina.userId = userId;
-        stamina.dataId = dataId;
+        stamina = CreatePlayerStamina(playerId, dataId);
         colPlayerStamina.insert(stamina);
     }
     return stamina;
 }
 
-function AddItems(userId, dataId, amount)
+function AddItems(playerId, dataId, amount)
 {
     var item = gameDatabase.items[dataId];
     if (!item)
         return { "success" : false };
         
     var maxStack = item.maxStack;
-    var oldEntries = colPlayerItem.find({ "dataId" : dataId, "userId" : userId, "amount" : { "$lt": maxStack }});
+    var oldEntries = colPlayerItem.find({ "playerId" : playerId, "dataId" : dataId, "amount" : { "$lt": maxStack }});
     var createItems = [];
     var updateItems = [];
     while (oldEntries.hasNext())
@@ -312,9 +314,7 @@ function AddItems(userId, dataId, amount)
     }
     while (amount > 0)
     {
-        var newEntry = CreatePlayerItem();
-        newEntry.userId = userId;
-        newEntry.dataId = dataId;
+        var newEntry = CreatePlayerItem(playerId, dataId);
         if (amount > maxStack)
         {
             newEntry.amount = maxStack;
@@ -330,24 +330,21 @@ function AddItems(userId, dataId, amount)
     return { "success" : true, "createItems" : createItems, "updateItems" : updateItems }
 }
 
-function HelperSetFormation(userId, characterId, formationName, position)
+function HelperSetFormation(playerId, characterId, formationName, position)
 {
     if (characterId.length > 0)
     {
-        var oldFormation = colPlayerFormation.findOne({ "userId" : userId, "dataId" : formationName, "itemId" : characterId });
+        var oldFormation = colPlayerFormation.findOne({ "playerId" : playerId, "dataId" : formationName, "itemId" : characterId });
         if (oldFormation)
         {
             oldFormation.itemId = "";
             colPlayerFormation.update({ "_id" : oldFormation._id }, oldFormation);
         }
     }
-    var formation = colPlayerFormation.findOne({ "userId" : userId, "dataId" : formationName, "position" : position });
+    var formation = colPlayerFormation.findOne({ "playerId" : playerId, "dataId" : formationName, "position" : position });
     if (!formation)
     {
-        formation = CreatePlayerFormation();
-        formation.userId = userId;
-        formation.dataId = formationName;
-        formation.position = position;
+        formation = CreatePlayerFormation(playerId, formationName, position);
         formation.itemId = characterId;
         colPlayerFormation.insert(formation);
     }
@@ -363,27 +360,22 @@ function HelperSetFormation(userId, characterId, formationName, position)
     }
 }
 
-function HelperUnlockItem(userId, dataId)
+function HelperUnlockItem(playerId, dataId)
 {
-    var unlockItem = colPlayerUnlockItem.findOne({ "userId" : userId, "dataId" : dataId });
+    var unlockItem = colPlayerUnlockItem.findOne({ "playerId" : playerId, "dataId" : dataId });
     if (!unlockItem)
     {
-        unlockItem = CreatePlayerUnlockItem();
-        unlockItem.userId = userId;
-        unlockItem.dataId = dataId;
-        unlockItem.amount = 0;
+        unlockItem = CreatePlayerUnlockItem(playerId, dataId);
         colPlayerUnlockItem.insert(unlockItem);
     }
 }
 
-function HelperClearStage(userId, dataId, grade)
+function HelperClearStage(playerId, dataId, grade)
 {
-    var clearStage = colPlayerClearStage.findOne({ "userId" : userId, "dataId" : dataId });
+    var clearStage = colPlayerClearStage.findOne({ "playerId" : playerId, "dataId" : dataId });
     if (clearStage == null)
     {
-        clearStage = CreatePlayerClearStage();
-        clearStage.userId = userId;
-        clearStage.dataId = dataId;
+        clearStage = CreatePlayerClearStage(playerId, dataId);
         clearStage.bestRating = grade;
         colPlayerClearStage.insert(clearStage);
     }
