@@ -140,7 +140,7 @@ function CreatePlayerUnlockItem()
 function SetNewPlayerData(userId)
 {
     var firstFormation = gameDatabase.formations[0];
-    var player = Spark.getPlayer();
+    var player = Spark.loadPlayer(userId);
     player.setScriptData("exp", 0);
     player.setScriptData("selectedFormation", firstFormation);
     
@@ -227,7 +227,7 @@ function UpdatePlayerStamina(userId, staminaType)
     if (!staminaTable)
         return;
     
-    var player = Spark.getPlayer();
+    var player = Spark.loadPlayer(userId);
     var exp = player.getScriptData("exp");
     var stamina = GetStamina(userId, staminaTable.id);
     var currentLevel = CalculateLevel(exp);
