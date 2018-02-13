@@ -96,11 +96,6 @@ function RandomLootBoxReward(lootBox)
     return undefined;
 }
 
-function CanSellItem(itemId)
-{
-    return true;
-}
-
 function CalculateIntAttribute(currentLevel, maxLevel, minValue, maxValue, growth)
 {
     if (currentLevel <= 0)
@@ -143,9 +138,44 @@ function CalculateLevel(exp)
     return level;
 }
 
+function CanItemBeMaterial(item)
+{
+    return true;
+}
+
+function CanSellItem(item)
+{
+    return true;
+}
+
+function CalculateItemLevelUpPrice(item)
+{
+    return 0;
+}
+
+function CalculateItemEvolvePrice(item)
+{
+    return 0;
+}
+
+function CalculateItemRewardExp(item)
+{
+    return 0;
+}
+
 function CalculateItemSellPrice(item)
 {
     return 0;
+}
+
+function GetItemEvolveMaterials(item)
+{
+    return [];
+}
+
+function GetItemEvolve(item)
+{
+    
 }
 
 function CreatePlayerBattle(playerId, dataId, session)
@@ -163,6 +193,7 @@ function CreatePlayerClearStage(playerId, dataId)
 {
     return {
         "_id" : playerId + "_" + dataId,
+        "id" : playerId + "_" + dataId,
         "playerId" : playerId,
         "dataId" : dataId,
         "bestRating" : 0,
@@ -173,6 +204,7 @@ function CreatePlayerFormation(playerId, dataId, position)
 {
     return {
         "_id" : playerId + "_" + dataId + "_" + position,
+        "id" : playerId + "_" + dataId + "_" + position,
         "playerId" : playerId,
         "dataId" : dataId,
         "position" : position,
@@ -196,6 +228,7 @@ function CreatePlayerStamina(playerId, dataId)
 {
     return {
         "_id" : playerId + "_" + dataId,
+        "id" : playerId + "_" + dataId,
         "playerId" : playerId,
         "dataId" : dataId,
         "amount" : 0,
@@ -207,6 +240,7 @@ function CreatePlayerUnlockItem(playerId, dataId)
 {
     return {
         "_id" : playerId + "_" + dataId,
+        "id" : playerId + "_" + dataId,
         "playerId" : playerId,
         "dataId" : dataId,
         "amount" : 0,
@@ -240,14 +274,16 @@ function SetNewPlayerData(playerId)
             var countUpdateItems = updateItems.length;
             for (var j = 0; j < countCreateItems; ++j)
             {
-                var createItem = createItems[j];
+                var createItem = addItemsResult.createItems[j];
                 colPlayerItem.insert(createItem);
-                HelperUnlockItem(playerId, startItem.id);
+                createItem.id = createItem._id.$oid;
+                colPlayerItem.update({ "_id" : createItem._id }, createItem);
+                HelperUnlockItem(playerId, createItem.dataId);
             }
             for (var j = 0; j < countUpdateItems; ++j)
             {
-                var updateItem = updateItem[j];
-                colPlayerItem.update({ "_id" : updateItem._id }, updateItem);
+                var updateItem = addItemsResult.updateItem[j];
+                colPlayerItem.update({ "id" : updateItem.id }, updateItem);
             }
         }
     }
@@ -269,12 +305,12 @@ function SetNewPlayerData(playerId)
                 var createItem = createItems[j];
                 colPlayerItem.insert(createItem);
                 HelperUnlockItem(playerId, startItem.id);
-                HelperSetFormation(playerId, createItem._id.$oid, firstFormation, i);
+                HelperSetFormation(playerId, createItem.id, firstFormation, i);
             }
             for (var j = 0; j < countUpdateItems; ++j)
             {
                 var updateItem = updateItem[j];
-                colPlayerItem.update({ "_id" : updateItem._id }, updateItem);
+                colPlayerItem.update({ "id" : updateItem.id }, updateItem);
             }
         }
     }
@@ -290,7 +326,7 @@ function DecreasePlayerStamina(playerId, staminaType, decreaseAmount)
     if (stamina.amount >= decreaseAmount)
     {
         stamina.amount -= decreaseAmount;
-        colPlayerStamina.update({ "_id" : stamina._id }, stamina);
+        colPlayerStamina.update({ "id" : stamina.id }, stamina);
         UpdatePlayerStamina(playerId, staminaType);
         return true;
     }
@@ -335,7 +371,7 @@ function UpdatePlayerStamina(playerId, staminaType)
         if (stamina.amount > maxStamina)
             stamina.amount = maxStamina;
         stamina.recoveredTime = currentTimeInMillisecond;
-        colPlayerStamina.update({ "_id" : stamina._id }, stamina);
+        colPlayerStamina.update({ "id" : stamina.id }, stamina);
     }
 }
 
@@ -422,7 +458,7 @@ function HelperSetFormation(playerId, characterId, formationName, position)
         if (oldFormation)
         {
             oldFormation.itemId = "";
-            colPlayerFormation.update({ "_id" : oldFormation._id }, oldFormation);
+            colPlayerFormation.update({ "id" : oldFormation.id }, oldFormation);
         }
     }
     var formation = colPlayerFormation.findOne({ "playerId" : playerId, "dataId" : formationName, "position" : position });
@@ -437,10 +473,10 @@ function HelperSetFormation(playerId, characterId, formationName, position)
         if (oldFormation)
         {
             oldFormation.itemId = formation.itemId;
-            colPlayerFormation.update({ "_id" : oldFormation._id }, oldFormation);
+            colPlayerFormation.update({ "id" : oldFormation.id }, oldFormation);
         }
         formation.itemId = characterId;
-        colPlayerFormation.update({ "_id" : formation._id }, formation);
+        colPlayerFormation.update({ "id" : formation.id }, formation);
     }
 }
 
@@ -468,7 +504,7 @@ function HelperClearStage(playerId, dataId, grade)
         if (clearStage.bestRating < grade)
         {
             clearStage.bestRating = grade;
-            colPlayerClearStage.update({ "_id" : clearStage._id }, clearStage);
+            colPlayerClearStage.update({ "id" : clearStage.id }, clearStage);
         }
     }
 }
