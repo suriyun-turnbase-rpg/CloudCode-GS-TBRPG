@@ -370,7 +370,9 @@ function SetNewPlayerData(playerId)
             {
                 var createItem = createItems[j];
                 colPlayerItem.insert(createItem);
-                HelperUnlockItem(playerId, startItem.id);
+                createItem.id = createItem._id.$oid;
+                colPlayerItem.update({ "_id" : createItem._id }, createItem);
+                HelperUnlockItem(playerId, createItem.dataId);
                 HelperSetFormation(playerId, createItem.id, firstFormation, i);
             }
             for (var j = 0; j < countUpdateItems; ++j)
