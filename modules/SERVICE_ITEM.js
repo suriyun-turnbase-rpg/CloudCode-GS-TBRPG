@@ -149,13 +149,16 @@ function EvolveItem(itemId, materials)
                 materialItems.push(foundItem);
             }
         }
-        for (var dataId in requiredMaterials)
+        var countRequiredMaterials = requiredMaterials.length;
+        for (var i = 0; i < countRequiredMaterials; ++i)
         {
-            var amount = requiredMaterials[dataId];
+            var requiredMaterial = requiredMaterials[i];
+            var dataId = requiredMaterial.id;
+            var amount = requiredMaterial.amount;
             var countMaterialItems = materialItems.length;
-            for (var i = 0; i < countMaterialItems; ++i)
+            for (var j = 0; j < countMaterialItems; ++j)
             {
-                var materialItem = materialItems[i];
+                var materialItem = materialItems[j];
                 if (materialItem.dataId !== dataId)
                 {
                     continue;
