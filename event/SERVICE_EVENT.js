@@ -32,6 +32,7 @@ require("GAME_DATA");
 require("HELPERS");
 require("SERVICE_LISTING");
 require("SERVICE_BATTLE");
+require("SERVICE_ITEM");
 
 var logger = Spark.getLog();
 var gsData = Spark.getData();
