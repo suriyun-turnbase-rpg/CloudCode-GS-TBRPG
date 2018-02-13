@@ -80,6 +80,7 @@ function FinishStage(session, battleResult, deadCharacters)
     else
     {
         // Prepare results
+        var rewardItems = [];
         var createItems = [];
         var updateItems = [];
         var deleteItemIds = [];
@@ -164,12 +165,14 @@ function FinishStage(session, battleResult, deadCharacters)
                         createItem.id = createItem._id.$oid;
                         colPlayerItem.update({ "_id" : createItem._id }, createItem);
                         HelperUnlockItem(playerId, createItem.dataId);
+                        rewardItems.push(createItem);
                         createItems.push(createItem);
                     }
                     for (var j = 0; j < countUpdateItems; ++j)
                     {
                         var updateItem = addItemsResult.updateItem[j];
                         colPlayerItem.update({ "id" : updateItem.id }, updateItem);
+                        rewardItems.push(updateItem);
                         updateItems.push(updateItem);
                     }
                 }
@@ -192,6 +195,7 @@ function FinishStage(session, battleResult, deadCharacters)
                 }
             }
         }
+        Spark.setScriptData("rewardItems", rewardItems);
         Spark.setScriptData("createItems", createItems);
         Spark.setScriptData("updateItems", updateItems);
         Spark.setScriptData("deleteItemIds", deleteItemIds);
