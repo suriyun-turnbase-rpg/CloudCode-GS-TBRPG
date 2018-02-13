@@ -43,7 +43,6 @@ function GetItemList()
     while (result.hasNext())
     {
         var entry = result.next();
-        entry.id = entry._id.$oid;
         list.push(entry);
     }
     Spark.setScriptData("list", list);
@@ -70,7 +69,6 @@ function GetStaminaList()
     while (result.hasNext())
     {
         var entry = result.next();
-        entry.id = entry._id;
         list.push(entry);
     }
     Spark.setScriptData("list", list);
@@ -85,7 +83,6 @@ function GetFormationList()
     while (result.hasNext())
     {
         var entry = result.next();
-        entry.id = entry._id;
         list.push(entry);
     }
     Spark.setScriptData("list", list);
@@ -100,7 +97,6 @@ function GetUnlockItemList()
     while (result.hasNext())
     {
         var entry = result.next();
-        entry.id = entry._id;
         list.push(entry);
     }
     Spark.setScriptData("list", list);
@@ -115,7 +111,6 @@ function GetClearStageList()
     while (result.hasNext())
     {
         var entry = result.next();
-        entry.id = entry._id;
         list.push(entry);
     }
     Spark.setScriptData("list", list);
