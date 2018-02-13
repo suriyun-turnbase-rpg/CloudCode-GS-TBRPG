@@ -122,15 +122,27 @@ function CalculateFloatAttribute(currentLevel, maxLevel, minValue, maxValue, gro
     return minValue + ((maxValue - minValue) * Math.pow((currentLevel - 1) / (maxLevel - 1), growth));
 }
 
-function CalculateLevel(exp)
+function CalculatePlayerLevel(exp)
+{
+    var maxLevel = gameDatabase.playerMaxLevel;
+    var expTable = gameDatabase.playerExpTable;
+    return CalculateLevel(exp, maxLevel, expTable.minValue, expTable.maxValue, expTable.growth);
+}
+
+function CalculateItemLevel(exp, itemTier)
+{
+    var maxLevel = itemTier.maxLevel;
+    var expTable = itemTier.expTable;
+    return CalculateLevel(exp, maxLevel, expTable.minValue, expTable.maxValue, expTable.growth);
+}
+
+function CalculateLevel(exp, maxLevel, minValue, maxValue, growth)
 {
     var remainExp = exp;
-    var maxLevel = gameDatabase.playerMaxLevel;
-    var playerExpTable = gameDatabase.playerExpTable;
     var level = 1;
     for (level = 1; level < maxLevel; ++level)
     {
-        var nextExp = CalculateIntAttribute(level, maxLevel, playerExpTable.minValue, playerExpTable.maxValue, playerExpTable.growth);
+        var nextExp = CalculateIntAttribute(level, maxLevel, minValue, maxValue, growth);
         if (remainExp - nextExp < 0)
             break;
         remainExp -= nextExp;
@@ -140,42 +152,96 @@ function CalculateLevel(exp)
 
 function CanItemBeMaterial(item)
 {
-    return true;
+    return (!item.equipItemId || item.equipItemId.length === 0);
 }
 
 function CanSellItem(item)
 {
-    return true;
+    return (!item.equipItemId || item.equipItemId.length === 0);
 }
 
 function CalculateItemLevelUpPrice(item)
 {
-    return 0;
+    var itemData = gameDatabase.items[item.dataId];
+    if (!itemData)
+        return 0;
+        
+    var itemTier = itemData.itemTier;
+    if (!itemTier)
+        return 0;
+        
+    var levelUpPriceTable = itemTier.levelUpPriceTable;
+    var currentLevel = CalculateItemLevel(item.exp, itemTier);
+    return CalculateIntAttribute(currentLevel, itemTier.maxLevel, levelUpPriceTable.minValue, levelUpPriceTable.maxValue, levelUpPriceTable.growth);
 }
 
 function CalculateItemEvolvePrice(item)
 {
-    return 0;
+    var itemData = gameDatabase.items[item.dataId];
+    if (!itemData)
+        return 0;
+        
+    var itemTier = itemData.itemTier;
+    if (!itemTier)
+        return 0;
+        
+    return itemTier.evolvePrice;
 }
 
 function CalculateItemRewardExp(item)
 {
-    return 0;
+    var itemData = gameDatabase.items[item.dataId];
+    if (!itemData)
+        return 0;
+        
+    var itemTier = itemData.itemTier;
+    if (!itemTier)
+        return 0;
+        
+    var rewardExpTable = itemTier.rewardExpTable;
+    var currentLevel = CalculateItemLevel(item.exp, itemTier);
+    return CalculateIntAttribute(currentLevel, itemTier.maxLevel, rewardExpTable.minValue, rewardExpTable.maxValue, rewardExpTable.growth);
 }
 
 function CalculateItemSellPrice(item)
 {
-    return 0;
+    var itemData = gameDatabase.items[item.dataId];
+    if (!itemData)
+        return 0;
+        
+    var itemTier = itemData.itemTier;
+    if (!itemTier)
+        return 0;
+        
+    var sellPriceTable = itemTier.sellPriceTable;
+    var currentLevel = CalculateItemLevel(item.exp, itemTier);
+    return CalculateIntAttribute(currentLevel, itemTier.maxLevel, sellPriceTable.minValue, sellPriceTable.maxValue, sellPriceTable.growth);
 }
 
 function GetItemEvolveMaterials(item)
 {
-    return [];
+    var itemData = gameDatabase.items[item.dataId];
+    if (!itemData)
+        return [];
+        
+    var evolveInfo = itemData.evolveInfo;
+    if (!evolveInfo)
+        return [];
+        
+    return evolveInfo.requiredMaterials;
 }
 
 function GetItemEvolve(item)
 {
-    
+    var itemData = gameDatabase.items[item.dataId];
+    if (!itemData)
+        return undefined;
+        
+    var evolveInfo = itemData.evolveInfo;
+    if (!evolveInfo)
+        return undefined;
+        
+    return evolveInfo.evolveItem;
 }
 
 function CreatePlayerBattle(playerId, dataId, session)
@@ -342,7 +408,7 @@ function UpdatePlayerStamina(playerId, staminaType)
     var player = Spark.loadPlayer(playerId);
     var exp = player.getScriptData("exp");
     var stamina = GetStamina(playerId, staminaTable.id);
-    var currentLevel = CalculateLevel(exp);
+    var currentLevel = CalculatePlayerLevel(exp);
     var maxLevel = gameDatabase.playerMaxLevel;
     var maxAmountTable = staminaTable.maxAmountTable;
     var maxStamina = CalculateIntAttribute(currentLevel, maxLevel, maxAmountTable.minValue, maxAmountTable.maxValue, maxAmountTable.growth);
