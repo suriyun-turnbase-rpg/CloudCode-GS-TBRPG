@@ -38,18 +38,199 @@ function LevelUpItem(itemId, materials)
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
+    var item = colPlayerItem.findOne({ "id" : itemId, "playerId" : playerId });
+    if (!item)
+    {
+        Spark.setScriptData("error", ERROR_INVALID_PLAYER_ITEM_DATA);
+    }
+    else
+    {
+        var softCurrencyId = gameDatabase.currencies.SOFT_CURRENCY;
+        var levelUpPrice = CalculateItemLevelUpPrice(item);
+        var requireCurrency = 0;
+        var increasingExp = 0;
+        var updateItems = [];
+        var deleteItemIds = [];
+        var updateCurrencies = [];
+        var materialItems = [];
+        for (var materialItemId in materials)
+        {
+            var foundItem = colPlayerItem.findOne({ "id" : materialItemId, "playerId" : playerId });
+            if (foundItem == null)
+            {
+                continue;
+            }
+    
+            if (CanItemBeMaterial(foundItem))
+            {
+                materialItems.push(foundItem);
+            }
+        }
+        var countMaterialItems = materialItems.length;
+        for (var i = 0; i < countMaterialItems; ++i)
+        {
+            var materialItem = materialItems[i];
+            var usingAmount = materials[materialItem.id];
+            if (usingAmount > materialItem.amount)
+            {
+                usingAmount = materialItem.amount;
+            }
+            requireCurrency += levelUpPrice * usingAmount;
+            increasingExp += CalculateItemRewardExp(materialItem) * usingAmount;
+            materialItem.amount -= usingAmount;
+            if (materialItem.amount > 0)
+            {
+                updateItems.push(materialItem);
+            }
+            else
+            {
+                deleteItemIds.push(materialItem.id);
+            }
+        }
+        if (requireCurrency > player.getBalance(softCurrencyId))
+        {
+            Spark.setScriptData("error", ERROR_NOT_ENOUGH_SOFT_CURRENCY);
+        }
+        else
+        {
+            player.debit(softCurrencyId, requireCurrency, "Level up item [" + itemId + "]");
+            item.exp += increasingExp;
+            updateItems.push(item);
+            var countUpdateItems = updateItems.length;
+            for (var i = 0; i < countUpdateItems; ++i)
+            {
+                var updateItem = updateItems[i];
+                colPlayerItem.update({ "id" : updateItem.id }, updateItem);
+            }
+            var countDeleteItemIds = deleteItemIds.length;
+            for (var i = 0; i < countDeleteItemIds; ++i)
+            {
+                var deleteItemId = deleteItemIds[i];
+                colPlayerItem.remove({ "id" : deleteItemId });
+            }
+            var softCurrency = GetCurrency(playerId, softCurrencyId);
+            updateCurrencies.push(softCurrency);
+            Spark.setScriptData("updateItems", updateItems);
+            Spark.setScriptData("deleteItemIds", deleteItemIds);
+            Spark.setScriptData("updateCurrencies", updateCurrencies);
+        }
+    }
 }
 
 function EvolveItem(itemId, materials)
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
+    var item = colPlayerItem.findOne({ "id" : itemId, "playerId" : playerId });
+    if (!item)
+    {
+        Spark.setScriptData("error", ERROR_INVALID_PLAYER_ITEM_DATA);
+    }
+    else
+    {
+        var softCurrencyId = gameDatabase.currencies.SOFT_CURRENCY;
+        var requireCurrency = CalculateItemEvolvePrice(item);
+        var enoughMaterials = true;
+        var updateItems = [];
+        var deleteItemIds = [];
+        var updateCurrencies = [];
+        var materialItems = [];
+        var requiredMaterials = GetItemEvolveMaterials(item);   // This is Key-Value Pair for `playerItem.DataId`, `Required Amount`
+        for (var materialItemId in materials)
+        {
+            var foundItem = colPlayerItem.findOne({ "id" : materialItemId, "playerId" : playerId });
+            if (foundItem == null)
+            {
+                continue;
+            }
+    
+            if (CanItemBeMaterial(foundItem))
+            {
+                materialItems.push(foundItem);
+            }
+        }
+        for (var dataId in requiredMaterials)
+        {
+            var amount = requiredMaterials[dataId];
+            var countMaterialItems = materialItems.length;
+            for (var i = 0; i < countMaterialItems; ++i)
+            {
+                var materialItem = materialItems[i];
+                if (materialItem.dataId !== dataId)
+                {
+                    continue;
+                }
+                
+                var usingAmount = materials[materialItem.id];
+                if (usingAmount > materialItem.amount)
+                {
+                    usingAmount = materialItem.amount;
+                }
+                if (usingAmount > amount)
+                {
+                    usingAmount = amount;
+                }
+                materialItem.amount -= usingAmount;
+                amount -= usingAmount;
+                if (materialItem.amount > 0)
+                {
+                    updateItems.push(materialItem);
+                }
+                else
+                {
+                    deleteItemIds.push(materialItem.id);
+                }
+                if (amount == 0)
+                {
+                    break;
+                }
+            }
+            if (amount > 0)
+            {
+                enoughMaterials = false;
+                break;
+            }
+        }
+        
+        if (requireCurrency > player.getBalance(softCurrencyId))
+        {
+            Spark.setScriptData("error", ERROR_NOT_ENOUGH_SOFT_CURRENCY);
+        }
+        else if (!enoughMaterials)
+        {
+            Spark.setScriptData("error", ERROR_NOT_ENOUGH_ITEMS);
+        }
+        else
+        {
+            player.debit(softCurrencyId, requireCurrency, "Evolve item [" + itemId + "]");
+            item = GetItemEvolve(item);
+            updateItems.push(item);
+            var countUpdateItems = updateItems.length;
+            for (var i = 0; i < countUpdateItems; ++i)
+            {
+                var updateItem = updateItems[i];
+                colPlayerItem.update({ "id" : updateItem.id }, updateItem);
+            }
+            var countDeleteItemIds = deleteItemIds.length;
+            for (var i = 0; i < countDeleteItemIds; ++i)
+            {
+                var deleteItemId = deleteItemIds[i];
+                colPlayerItem.remove({ "id" : deleteItemId });
+            }
+            var softCurrency = GetCurrency(playerId, softCurrencyId);
+            updateCurrencies.push(softCurrency);
+            Spark.setScriptData("updateItems", updateItems);
+            Spark.setScriptData("deleteItemIds", deleteItemIds);
+            Spark.setScriptData("updateCurrencies", updateCurrencies);
+        }
+    }
 }
 
 function SellItems(items)
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
+    var softCurrencyId = gameDatabase.currencies.SOFT_CURRENCY;
     var returnCurrency = 0;
     var updateItems = [];
     var deleteItemIds = [];
@@ -58,7 +239,7 @@ function SellItems(items)
     
     for (var sellingItemId in items)
     {
-        var foundItem = colPlayerItem.findOne({ "_id" : { "$oid" : sellingItemId }, "playerId" : playerId });
+        var foundItem = colPlayerItem.findOne({ "id" : sellingItemId, "playerId" : playerId });
         if (foundItem == null)
         {
             continue;
@@ -73,7 +254,7 @@ function SellItems(items)
     for (var i = 0; i < countSellingItems; ++i)
     {
         var sellingItem = sellingItems[i];
-        var usingAmount = items[sellingItem._id.$oid];
+        var usingAmount = items[sellingItem.id];
         if (usingAmount > sellingItem.amount)
         {
             usingAmount = sellingItem.amount;
@@ -82,20 +263,25 @@ function SellItems(items)
         sellingItem.amount -= usingAmount;
         if (sellingItem.amount > 0)
         {
-            updateItems.Add(sellingItem);
+            updateItems.push(sellingItem);
         }
         else
         {
-            deleteItemIds.Add(sellingItem._id.$oid);
+            deleteItemIds.push(sellingItem.id);
         }
     }
-    var softCurrencyId = gameDatabase.currencies.SOFT_CURRENCY;
     player.credit(softCurrencyId, returnCurrency, "Sell Items");
+    var countUpdateItems = updateItems.length;
+    for (var i = 0; i < countUpdateItems; ++i)
+    {
+        var updateItem = updateItems[i];
+        colPlayerItem.update({ "id" : updateItem.id }, updateItem);
+    }
     var countDeleteItemIds = deleteItemIds.length;
     for (var i = 0; i < countDeleteItemIds; ++i)
     {
         var deleteItemId = deleteItemIds[i];
-        colPlayerItem.remove({ "_id" : { "$oid" : deleteItemId } });
+        colPlayerItem.remove({ "id" : deleteItemId });
     }
     var softCurrency = GetCurrency(playerId, softCurrencyId);
     updateCurrencies.push(softCurrency);
@@ -108,8 +294,8 @@ function EquipItem(characterId, equipmentId, equipPosition)
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
-    var character = colPlayerItem.findOne({ "_id" : { $oid: characterId }, "playerId" : playerId });
-    var equipment = colPlayerItem.findOne({ "_id" : { $oid: equipmentId }, "playerId" : playerId });
+    var character = colPlayerItem.findOne({ "id" : characterId, "playerId" : playerId });
+    var equipment = colPlayerItem.findOne({ "id" : equipmentId, "playerId" : playerId });
     if (!character || !equipment)
     {
         Spark.setScriptData("error", ERROR_INVALID_PLAYER_ITEM_DATA);
@@ -133,12 +319,12 @@ function EquipItem(characterId, equipmentId, equipPosition)
             {
                 unEquipItem.equipItemId = "";
                 unEquipItem.equipPosition = "";
-                colPlayerItem.update({ "_id" : unEquipItem._id }, unEquipItem);
+                colPlayerItem.update({ "id" : unEquipItem.id }, unEquipItem);
                 updateItems.push(unEquipItem);
             }
             equipment.equipItemId = characterId;
             equipment.equipPosition = equipPosition;
-            colPlayerItem.update({ "_id" : equipment._id }, equipment);
+            colPlayerItem.update({ "id" : equipment.id }, equipment);
             updateItems.push(equipment);
             Spark.setScriptData("updateItems", updateItems);
         }
@@ -149,7 +335,7 @@ function UnEquipItem(equipmentId)
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
-    var unEquipItem = colPlayerItem.findOne({ "_id" : { $oid: equipmentId }, "playerId" : playerId });
+    var unEquipItem = colPlayerItem.findOne({ "id" : equipmentId, "playerId" : playerId });
     if (!unEquipItem)
     {
         Spark.setScriptData("error", ERROR_INVALID_PLAYER_ITEM_DATA);
@@ -159,8 +345,7 @@ function UnEquipItem(equipmentId)
         var updateItems = [];
         unEquipItem.equipItemId = "";
         unEquipItem.equipPosition = "";
-        colPlayerItem.update({ "_id" : unEquipItem._id }, unEquipItem);
-        unEquipItem.id = unEquipItem._id.$oid;
+        colPlayerItem.update({ "id" : unEquipItem.id }, unEquipItem);
         updateItems.push(unEquipItem);
         Spark.setScriptData("updateItems", updateItems);
     }
@@ -187,12 +372,12 @@ function OpenLootBox(lootBoxDataId, packIndex)
     }
     else
     {
+        var softCurrencyId = gameDatabase.currencies.SOFT_CURRENCY;
+        var hardCurrencyId = gameDatabase.currencies.HARD_CURRENCY;
         var createItems = [];
         var updateItems = [];
         var deleteItemIds = [];
         var updateCurrencies = [];
-        var softCurrencyId = gameDatabase.currencies.SOFT_CURRENCY;
-        var hardCurrencyId = gameDatabase.currencies.HARD_CURRENCY;
         var requirementType = lootBox.requirementType;
         if (packIndex > lootBox.lootboxPacks.length - 1)
             packIndex = 0;
@@ -240,15 +425,15 @@ function OpenLootBox(lootBoxDataId, packIndex)
                     {
                         var createItem = addItemsResult.createItems[j];
                         colPlayerItem.insert(createItem);
-                        HelperUnlockItem(playerId, createItem.id);
                         createItem.id = createItem._id.$oid;
+                        colPlayerItem.update({ "_id" : createItem._id }, createItem);
+                        HelperUnlockItem(playerId, createItem.dataId);
                         createItems.push(createItem);
                     }
                     for (var j = 0; j < countUpdateItems; ++j)
                     {
                         var updateItem = addItemsResult.updateItem[j];
-                        colPlayerItem.update({ "_id" : updateItem._id }, updateItem);
-                        updateItem.id = updateItem._id.$oid;
+                        colPlayerItem.update({ "id" : updateItem.id }, updateItem);
                         updateItems.push(updateItem);
                     }
                 }
