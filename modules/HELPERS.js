@@ -166,6 +166,9 @@ function CalculateItemLevelUpPrice(item)
     if (!itemData)
         return 0;
         
+    if (itemData.useFixLevelUpPrice)
+        return itemData.fixLevelUpPrice;
+        
     var itemTier = itemData.itemTier;
     if (!itemTier)
         return 0;
@@ -194,6 +197,9 @@ function CalculateItemRewardExp(item)
     if (!itemData)
         return 0;
         
+    if (itemData.useFixRewardExp)
+        return itemData.fixRewardExp;
+        
     var itemTier = itemData.itemTier;
     if (!itemTier)
         return 0;
@@ -208,6 +214,9 @@ function CalculateItemSellPrice(item)
     var itemData = gameDatabase.items[item.dataId];
     if (!itemData)
         return 0;
+        
+    if (itemData.useFixSellPrice)
+        return itemData.fixSellPrice;
         
     var itemTier = itemData.itemTier;
     if (!itemTier)
