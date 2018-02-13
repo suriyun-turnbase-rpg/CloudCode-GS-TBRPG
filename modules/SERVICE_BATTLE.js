@@ -53,10 +53,11 @@ function StartStage(stageDataId)
         var session = playerId + "_" + stageDataId + "_" + Date.now();
         var playerBattle = CreatePlayerBattle(playerId, stageDataId, session);
         colPlayerBattle.insert(playerBattle);
+        playerBattle.id = playerBattle._id.$oid;
+        colPlayerBattle.update({ "_id" : playerBattle._id }, playerBattle);
         
         var staminaTable = gameDatabase.staminas["STAGE"];
         var stamina = GetStamina(playerId, staminaTable.id);
-        stamina.id = stamina._id;
         
         Spark.setScriptData("stamina", stamina);
         Spark.setScriptData("session", session);
@@ -97,7 +98,7 @@ function FinishStage(session, battleResult, deadCharacters)
                 rating = 1;
         }
         battle.rating = rating;
-        colPlayerBattle.update({ "_id" : battle._id }, battle);
+        colPlayerBattle.update({ "id" : battle.id }, battle);
         if (battleResult == ENUM_BATTLE_RESULT_WIN)
         {
             var playerSelectedFormation = player.getScriptData("selectedFormation");
@@ -127,12 +128,11 @@ function FinishStage(session, battleResult, deadCharacters)
                 for (var i = 0; i < countCharacterIds; ++i)
                 {
                     var characterId = characterIds[i];
-                    var character = colPlayerItem.findOne({ "_id" : { "$oid" : characterId } });
+                    var character = colPlayerItem.findOne({ "id" : characterId });
                     if (character)
                     {
                         character.exp += devivedExp;
-                        colPlayerItem.update({ "_id" : character._id }, character);
-                        character.id = character._id.$oid;
+                        colPlayerItem.update({ "id" : character.id }, character);
                         updateItems.push(character);
                     }
                 }
@@ -148,7 +148,9 @@ function FinishStage(session, battleResult, deadCharacters)
             {
                 var rewardItem = stage.rewardItems[i];
                 if (!rewardItem || !rewardItem.id || RandomRange(0, 1) > rewardItem.randomRate)
+                {
                     continue;
+                }
                     
                 var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
                 if (addItemsResult.success)
@@ -159,15 +161,15 @@ function FinishStage(session, battleResult, deadCharacters)
                     {
                         var createItem = addItemsResult.createItems[j];
                         colPlayerItem.insert(createItem);
-                        HelperUnlockItem(playerId, createItem.id);
                         createItem.id = createItem._id.$oid;
+                        colPlayerItem.update({ "_id" : createItem._id }, createItem);
+                        HelperUnlockItem(playerId, createItem.dataId);
                         createItems.push(createItem);
                     }
                     for (var j = 0; j < countUpdateItems; ++j)
                     {
                         var updateItem = addItemsResult.updateItem[j];
-                        colPlayerItem.update({ "_id" : updateItem._id }, updateItem);
-                        updateItem.id = updateItem._id.$oid;
+                        colPlayerItem.update({ "id" : updateItem.id }, updateItem);
                         updateItems.push(updateItem);
                     }
                 }
@@ -186,7 +188,7 @@ function FinishStage(session, battleResult, deadCharacters)
                 if (clearedStage.bestRating < rating)
                 {
                     clearedStage.bestRating = rating;
-                    colPlayerClearStage.update({ "_id" : clearedStage._id }, clearedStage);
+                    colPlayerClearStage.update({ "id" : clearedStage.id }, clearedStage);
                 }
             }
         }
