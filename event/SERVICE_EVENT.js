@@ -62,23 +62,51 @@ else if (target === "GetClearStageList")
 {
     GetClearStageList();
 }
-else if (target == "StartStage")
+else if (target === "StartStage")
 {
     StartStage(data.stageDataId);
 }
-else if (target == "FinishStage")
+else if (target === "FinishStage")
 {
     FinishStage(data.session, data.battleResult, data.deadCharacters);
 }
-else if (target == "ReviveCharacters")
+else if (target === "ReviveCharacters")
 {
     ReviveCharacters();
 }
-else if (target == "SelectFormation")
+else if (target === "SelectFormation")
 {
     SelectFormation(data.formationName);
 }
-else if (target == "SetFormation")
+else if (target === "SetFormation")
 {
     SetFormation(data.characterId, data.formationName, data.position);
+}
+else if (target === "LevelUpItem")
+{
+    LevelUpItem(data.itemId, data.materials);
+}
+else if (target === "EvolveItem")
+{
+    EvolveItem(data.itemId, data.materials);
+}
+else if (target === "SellItems")
+{
+    SellItems(data.items);
+}
+else if (target === "EquipItem")
+{
+    EquipItem(data.characterId, data.equipmentId, data.equipPosition);
+}
+else if (target === "UnEquipItem")
+{
+    UnEquipItem(data.equipmentId);
+}
+else if (target === "GetAvailableLootBoxList")
+{
+    GetAvailableLootBoxList();
+}
+else if (target === "OpenLootBox")
+{
+    OpenLootBox(data.lootBoxDataId, data.packIndex);
 }
