@@ -27,18 +27,30 @@
 // SOFTWARE.
 // ====================================================================================================
 
-var colPlayerItem = Spark.runtimeCollection("playerItem");
-var colPlayerStamina = Spark.runtimeCollection("playerStamina");
-var colPlayerFormation = Spark.runtimeCollection("playerFormation");
-var colPlayerUnlockItem = Spark.runtimeCollection("playerUnlockItem");
-var colPlayerClearStage = Spark.runtimeCollection("playerClearStage");
-var colPlayerBattle = Spark.runtimeCollection("playerBattle");
+var API = Spark.getGameDataService();
+var colPlayerItem = "playerItem";
+var colPlayerStamina = "playerStamina";
+var colPlayerFormation = "playerFormation";
+var colPlayerUnlockItem = "playerUnlockItem";
+var colPlayerClearStage = "playerClearStage";
+var colPlayerBattle = "playerBattle";
 
 function LevelUpItem(itemId, materials)
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
-    var item = colPlayerItem.findOne({ "id" : itemId, "playerId" : playerId });
+    var queryResult = API.queryItems(
+        colPlayerItem,
+        API.S("playerId").eq(playerId).and(API.S("id").eq(itemId)),
+        API.sort("id", false));
+    var result = queryResult.cursor();
+    var item;
+    var itemEntry;
+    if (result.hasNext())
+    {
+        itemEntry = result.next();
+        item = itemEntry.getData();
+    }
     if (!item)
     {
         Spark.setScriptData("error", ERROR_INVALID_PLAYER_ITEM_DATA);
@@ -55,8 +67,20 @@ function LevelUpItem(itemId, materials)
         var materialItems = [];
         for (var materialItemId in materials)
         {
-            var foundItem = colPlayerItem.findOne({ "id" : materialItemId, "playerId" : playerId });
-            if (foundItem == null)
+            var findMaterialQueryResult = API.queryItems(
+                colPlayerItem,
+                API.S("playerId").eq(playerId).and(API.S("id").eq(materialItemId)),
+                API.sort("id", false));
+            var findMaterialResult = findMaterialQueryResult.cursor();
+            var foundItem;
+            var foundItemEntry;
+            if (findMaterialResult.hasNext())
+            {
+                foundItemEntry = findMaterialResult.next();
+                foundItem = foundItemEntry.getData();
+            }
+            
+            if (!foundItem)
             {
                 continue;
             }
@@ -100,13 +124,22 @@ function LevelUpItem(itemId, materials)
             for (var i = 0; i < countUpdateItems; ++i)
             {
                 var updateItem = updateItems[i];
-                colPlayerItem.update({ "id" : updateItem.id }, updateItem);
+                var doc = API.getItem(colPlayerItem, updateItem.id).document();
+                if (doc)
+                {
+                    doc.setData(updateItem);
+                    doc.persistor().persist().error();
+                }
             }
             var countDeleteItemIds = deleteItemIds.length;
             for (var i = 0; i < countDeleteItemIds; ++i)
             {
                 var deleteItemId = deleteItemIds[i];
-                colPlayerItem.remove({ "id" : deleteItemId });
+                var doc = API.getItem(colPlayerItem, deleteItemId).document();
+                if (doc)
+                {
+                    doc.delete();
+                }
             }
             var softCurrency = GetCurrency(playerId, softCurrencyId);
             updateCurrencies.push(softCurrency);
@@ -121,7 +154,18 @@ function EvolveItem(itemId, materials)
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
-    var item = colPlayerItem.findOne({ "id" : itemId, "playerId" : playerId });
+    var queryResult = API.queryItems(
+        colPlayerItem,
+        API.S("playerId").eq(playerId).and(API.S("id").eq(itemId)),
+        API.sort("id", false));
+    var result = queryResult.cursor();
+    var item;
+    var itemEntry;
+    if (result.hasNext())
+    {
+        itemEntry = result.next();
+        item = itemEntry.getData();
+    }
     if (!item)
     {
         Spark.setScriptData("error", ERROR_INVALID_PLAYER_ITEM_DATA);
@@ -138,8 +182,20 @@ function EvolveItem(itemId, materials)
         var requiredMaterials = GetItemEvolveMaterials(item);   // This is Key-Value Pair for `playerItem.DataId`, `Required Amount`
         for (var materialItemId in materials)
         {
-            var foundItem = colPlayerItem.findOne({ "id" : materialItemId, "playerId" : playerId });
-            if (foundItem == null)
+            var findMaterialQueryResult = API.queryItems(
+                colPlayerItem,
+                API.S("playerId").eq(playerId).and(API.S("id").eq(materialItemId)),
+                API.sort("id", false));
+            var findMaterialResult = findMaterialQueryResult.cursor();
+            var foundItem;
+            var foundItemEntry;
+            if (findMaterialResult.hasNext())
+            {
+                foundItemEntry = findMaterialResult.next();
+                foundItem = foundItemEntry.getData();
+            }
+            
+            if (!foundItem)
             {
                 continue;
             }
@@ -212,13 +268,22 @@ function EvolveItem(itemId, materials)
             for (var i = 0; i < countUpdateItems; ++i)
             {
                 var updateItem = updateItems[i];
-                colPlayerItem.update({ "id" : updateItem.id }, updateItem);
+                var doc = API.getItem(colPlayerItem, updateItem.id).document();
+                if (doc)
+                {
+                    doc.setData(updateItem);
+                    doc.persistor().persist().error();
+                }
             }
             var countDeleteItemIds = deleteItemIds.length;
             for (var i = 0; i < countDeleteItemIds; ++i)
             {
                 var deleteItemId = deleteItemIds[i];
-                colPlayerItem.remove({ "id" : deleteItemId });
+                var doc = API.getItem(colPlayerItem, deleteItemId).document();
+                if (doc)
+                {
+                    doc.delete();
+                }
             }
             var softCurrency = GetCurrency(playerId, softCurrencyId);
             updateCurrencies.push(softCurrency);
@@ -242,8 +307,20 @@ function SellItems(items)
     
     for (var sellingItemId in items)
     {
-        var foundItem = colPlayerItem.findOne({ "id" : sellingItemId, "playerId" : playerId });
-        if (foundItem == null)
+        var findSellingItemQueryResult = API.queryItems(
+            colPlayerItem,
+            API.S("playerId").eq(playerId).and(API.S("id").eq(sellingItemId)),
+            API.sort("id", false));
+        var findSellingItemResult = findSellingItemQueryResult.cursor();
+        var foundItem;
+        var foundItemEntry;
+        if (findSellingItemResult.hasNext())
+        {
+            foundItemEntry = findSellingItemResult.next();
+            foundItem = foundItemEntry.getData();
+        }
+        
+        if (!foundItem)
         {
             continue;
         }
@@ -278,13 +355,22 @@ function SellItems(items)
     for (var i = 0; i < countUpdateItems; ++i)
     {
         var updateItem = updateItems[i];
-        colPlayerItem.update({ "id" : updateItem.id }, updateItem);
+        var doc = API.getItem(colPlayerItem, updateItem.id).document();
+        if (doc)
+        {
+            doc.setData(updateItem);
+            doc.persistor().persist().error();
+        }
     }
     var countDeleteItemIds = deleteItemIds.length;
     for (var i = 0; i < countDeleteItemIds; ++i)
     {
         var deleteItemId = deleteItemIds[i];
-        colPlayerItem.remove({ "id" : deleteItemId });
+        var doc = API.getItem(colPlayerItem, deleteItemId).document();
+        if (doc)
+        {
+            doc.delete();
+        }
     }
     var softCurrency = GetCurrency(playerId, softCurrencyId);
     updateCurrencies.push(softCurrency);
@@ -297,9 +383,15 @@ function EquipItem(characterId, equipmentId, equipPosition)
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
-    var character = colPlayerItem.findOne({ "id" : characterId, "playerId" : playerId });
-    var equipment = colPlayerItem.findOne({ "id" : equipmentId, "playerId" : playerId });
-    if (!character || !equipment)
+    var character;
+    var equipment;
+    var characterEntry = API.getItem(colPlayerItem, characterId).document();
+    var equipmentEntry = API.getItem(colPlayerItem, equipmentId).document();
+    if (characterEntry)
+        character = characterEntry.getData();
+    if (equipmentEntry)
+        equipment = equipmentEntry.getData();
+    if (!character || !equipment || character.playerId !== playerId || equipment.playerId !== playerId)
     {
         Spark.setScriptData("error", ERROR_INVALID_PLAYER_ITEM_DATA);
     }
@@ -310,24 +402,37 @@ function EquipItem(characterId, equipmentId, equipPosition)
         {
             Spark.setScriptData("error", ERROR_INVALID_ITEM_DATA);
         }
-        else if (!equipmentData.equippablePositions || equippablePositions.indexOf(equipPosition) === -1)
+        else if (equipmentData.equippablePositions && 
+            equipmentData.equippablePositions.length > 0 && 
+            equipmentData.equippablePositions.indexOf(equipPosition) === -1)
         {
             Spark.setScriptData("error", ERROR_INVALID_EQUIP_POSITION);
         }
         else
         {
             var updateItems = [];
-            var unEquipItem = colPlayerItem.findOne({ "equipItemId" : characterId, "equipPosition" : equipPosition, "playerId" : playerId });
-            if (unEquipItem)
+            var unEquipItemQueryResult = API.queryItems(
+                colPlayerItem,
+                API.S("equipItemId").eq(characterId).and(API.S("equipPosition").eq(equipPosition)).and(API.S("playerId").eq(playerId)));
+            var unEquipItemCursor = unEquipItemQueryResult.cursor();
+            if (unEquipItemCursor.hasNext())
             {
+                var unEquipItemDoc = unEquipItemCursor.next();
+                var unEquipItem = unEquipItemDoc.getData();
                 unEquipItem.equipItemId = "";
                 unEquipItem.equipPosition = "";
-                colPlayerItem.update({ "id" : unEquipItem.id }, unEquipItem);
+                unEquipItemDoc.setData(unEquipItem);
+                unEquipItemDoc.persistor().persist().error();
                 updateItems.push(unEquipItem);
             }
             equipment.equipItemId = characterId;
             equipment.equipPosition = equipPosition;
-            colPlayerItem.update({ "id" : equipment.id }, equipment);
+            var equipItemDoc = API.getItem(colPlayerItem, equipment.id).document();
+            if (equipItemDoc)
+            {
+                equipItemDoc.setData(equipment);
+                equipItemDoc.persistor().persist().error();
+            }
             updateItems.push(equipment);
             Spark.setScriptData("updateItems", updateItems);
         }
@@ -348,7 +453,12 @@ function UnEquipItem(equipmentId)
         var updateItems = [];
         unEquipItem.equipItemId = "";
         unEquipItem.equipPosition = "";
-        colPlayerItem.update({ "id" : unEquipItem.id }, unEquipItem);
+        var unEquipItemDoc = API.getItem(colPlayerItem, unEquipItem.id).document();
+        if (unEquipItemDoc)
+        {
+            unEquipItemDoc.setData(unEquipItem);
+            unEquipItemDoc.persistor().persist().error();
+        }
         updateItems.push(unEquipItem);
         Spark.setScriptData("updateItems", updateItems);
     }
@@ -427,16 +537,19 @@ function OpenLootBox(lootBoxDataId, packIndex)
                     for (var j = 0; j < countCreateItems; ++j)
                     {
                         var createItem = addItemsResult.createItems[j];
-                        colPlayerItem.insert(createItem);
-                        createItem.id = createItem._id.$oid;
-                        colPlayerItem.update({ "_id" : createItem._id }, createItem);
+                        var newItemEntry = API.createItem(colPlayerItem, createItem.id);
+                        newItemEntry.setData(createItem);
+                        newItemEntry.persistor().persist().error();
                         HelperUnlockItem(playerId, createItem.dataId);
                         createItems.push(createItem);
                     }
                     for (var j = 0; j < countUpdateItems; ++j)
                     {
                         var updateItem = addItemsResult.updateItem[j];
-                        colPlayerItem.update({ "id" : updateItem.id }, updateItem);
+                        var updateItemResult = API.getItem(colPlayerItem, updateItem.id);
+                        var updateItemEntry = updateItemResult.document();
+                        updateItemEntry.setData(updateItem);
+                        updateItemEntry.persistor().persist().error();
                         updateItems.push(updateItem);
                     }
                 }

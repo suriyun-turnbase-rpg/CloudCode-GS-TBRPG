@@ -27,23 +27,28 @@
 // SOFTWARE.
 // ====================================================================================================
 
-var colPlayerItem = Spark.runtimeCollection("playerItem");
-var colPlayerStamina = Spark.runtimeCollection("playerStamina");
-var colPlayerFormation = Spark.runtimeCollection("playerFormation");
-var colPlayerUnlockItem = Spark.runtimeCollection("playerUnlockItem");
-var colPlayerClearStage = Spark.runtimeCollection("playerClearStage");
-var colPlayerBattle = Spark.runtimeCollection("playerBattle");
+var API = Spark.getGameDataService();
+var colPlayerItem = "playerItem";
+var colPlayerStamina = "playerStamina";
+var colPlayerFormation = "playerFormation";
+var colPlayerUnlockItem = "playerUnlockItem";
+var colPlayerClearStage = "playerClearStage";
+var colPlayerBattle = "playerBattle";
 
 function GetItemList()
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
     var list = [];
-    var result = colPlayerItem.find({ "playerId" : playerId });
-    while (result.hasNext())
+    var queryResult = API.queryItems(colPlayerItem, API.S("playerId").eq(playerId), API.sort("timestamp", false));
+    if (!queryResult.error())
     {
-        var entry = result.next();
-        list.push(entry);
+        var result = queryResult.cursor();
+        while (result.hasNext())
+        {
+            var entry = result.next();
+            list.push(entry.getData());
+        }
     }
     Spark.setScriptData("list", list);
 }
@@ -65,11 +70,15 @@ function GetStaminaList()
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
     var list = [];
-    var result = colPlayerStamina.find({ "playerId" : playerId });
-    while (result.hasNext())
+    var queryResult = API.queryItems(colPlayerStamina, API.S("playerId").eq(playerId), API.sort("timestamp", false));
+    if (!queryResult.error())
     {
-        var entry = result.next();
-        list.push(entry);
+        var result = queryResult.cursor();
+        while (result.hasNext())
+        {
+            var entry = result.next();
+            list.push(entry.getData());
+        }
     }
     Spark.setScriptData("list", list);
 }
@@ -79,11 +88,15 @@ function GetFormationList()
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
     var list = [];
-    var result = colPlayerFormation.find({ "playerId" : playerId });
-    while (result.hasNext())
+    var queryResult = API.queryItems(colPlayerFormation, API.S("playerId").eq(playerId), API.sort("timestamp", false));
+    if (!queryResult.error())
     {
-        var entry = result.next();
-        list.push(entry);
+        var result = queryResult.cursor();
+        while (result.hasNext())
+        {
+            var entry = result.next();
+            list.push(entry.getData());
+        }
     }
     Spark.setScriptData("list", list);
 }
@@ -93,11 +106,15 @@ function GetUnlockItemList()
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
     var list = [];
-    var result = colPlayerUnlockItem.find({ "playerId" : playerId });
-    while (result.hasNext())
+    var queryResult = API.queryItems(colPlayerUnlockItem, API.S("playerId").eq(playerId), API.sort("timestamp", false));
+    if (!queryResult.error())
     {
-        var entry = result.next();
-        list.push(entry);
+        var result = queryResult.cursor();
+        while (result.hasNext())
+        {
+            var entry = result.next();
+            list.push(entry.getData());
+        }
     }
     Spark.setScriptData("list", list);
 }
@@ -107,11 +124,15 @@ function GetClearStageList()
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
     var list = [];
-    var result = colPlayerClearStage.find({ "playerId" : playerId });
-    while (result.hasNext())
+    var queryResult = API.queryItems(colPlayerClearStage, API.S("playerId").eq(playerId), API.sort("timestamp", false));
+    if (!queryResult.error())
     {
-        var entry = result.next();
-        list.push(entry);
+        var result = queryResult.cursor();
+        while (result.hasNext())
+        {
+            var entry = result.next();
+            list.push(entry.getData());
+        }
     }
     Spark.setScriptData("list", list);
 }

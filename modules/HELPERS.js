@@ -27,12 +27,24 @@
 // SOFTWARE.
 // ====================================================================================================
 
-var colPlayerItem = Spark.runtimeCollection("playerItem");
-var colPlayerStamina = Spark.runtimeCollection("playerStamina");
-var colPlayerFormation = Spark.runtimeCollection("playerFormation");
-var colPlayerUnlockItem = Spark.runtimeCollection("playerUnlockItem");
-var colPlayerClearStage = Spark.runtimeCollection("playerClearStage");
-var colPlayerBattle = Spark.runtimeCollection("playerBattle");
+var API = Spark.getGameDataService();
+var colPlayerItem = "playerItem";
+var colPlayerStamina = "playerStamina";
+var colPlayerFormation = "playerFormation";
+var colPlayerUnlockItem = "playerUnlockItem";
+var colPlayerClearStage = "playerClearStage";
+var colPlayerBattle = "playerBattle";
+
+function GenerateUUID()
+{
+    var d = new Date().getTime();
+    var uuid = 'xxxx-xxxx-4xxx-yxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random() * 16) % 16 | 0;
+        d = Math.floor(d/16);
+        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+}
 
 function RandomRange(min, max)
 {
@@ -244,81 +256,118 @@ function GetItemEvolve(item)
 {
     var itemData = gameDatabase.items[item.dataId];
     if (!itemData)
-        return undefined;
+        return item;
         
     var evolveInfo = itemData.evolveInfo;
     if (!evolveInfo)
-        return undefined;
+        return item;
         
-    return evolveInfo.evolveItem;
+    item.dataId = evolveInfo.evolveItem;
+    if (gameDatabase.resetItemLevelAfterEvolve)
+        item.exp = 0;
+    return item;
+}
+
+function GeneratePlayerBattleId()
+{
+    return GenerateUUID();
 }
 
 function CreatePlayerBattle(playerId, dataId, session)
 {
     return {
+        "id" : GeneratePlayerBattleId(),
         "playerId" : playerId,
         "dataId" : dataId,
         "session" : session,
         "battleResult" : ENUM_BATTLE_RESULT_NONE,
         "rating" : 0,
+        "timestamp" : new Date().getTime(),
     };
+}
+
+function GeneratePlayerClearStageId(playerId, dataId)
+{
+    return (playerId + "-" + dataId).split('_').join('-');
 }
 
 function CreatePlayerClearStage(playerId, dataId)
 {
     return {
-        "_id" : playerId + "_" + dataId,
-        "id" : playerId + "_" + dataId,
+        "id" : GeneratePlayerClearStageId(playerId, dataId),
         "playerId" : playerId,
         "dataId" : dataId,
         "bestRating" : 0,
+        "timestamp" : new Date().getTime(),
     }
+}
+
+function GeneratePlayerFormationId(playerId, dataId, position)
+{
+    return (playerId + "-" + dataId + "-" + position).split('_').join('-');
 }
 
 function CreatePlayerFormation(playerId, dataId, position)
 {
     return {
-        "_id" : playerId + "_" + dataId + "_" + position,
-        "id" : playerId + "_" + dataId + "_" + position,
+        "id" : GeneratePlayerFormationId(playerId, dataId, position),
         "playerId" : playerId,
         "dataId" : dataId,
         "position" : position,
         "itemId" : "",
+        "timestamp" : new Date().getTime(),
     }
+}
+
+function GeneratePlayerItemId()
+{
+    return GenerateUUID();
 }
 
 function CreatePlayerItem(playerId, dataId)
 {
     return {
+        "id" : GeneratePlayerItemId(),
         "playerId" : playerId,
         "dataId" : dataId,
         "amount" : 1,
         "exp" : 0,
         "equipItemId" : "",
-        "equipPosition" : ""
+        "equipPosition" : "",
+        "timestamp" : new Date().getTime(),
     };
+}
+
+function GeneratePlayerStaminaId(playerId, dataId)
+{
+    return (playerId + "-" + dataId).split('_').join('-');
 }
 
 function CreatePlayerStamina(playerId, dataId)
 {
     return {
-        "_id" : playerId + "_" + dataId,
-        "id" : playerId + "_" + dataId,
+        "id" : GeneratePlayerStaminaId(playerId, dataId),
         "playerId" : playerId,
         "dataId" : dataId,
         "amount" : 0,
         "recoveredTime" : 0,
+        "timestamp" : new Date().getTime(),
     };
+}
+
+function GeneratePlayerUnlockItemId(playerId, dataId)
+{
+    return (playerId + "-" + dataId).split('_').join('-');
 }
 
 function CreatePlayerUnlockItem(playerId, dataId)
 {
     return {
-        "_id" : playerId + "_" + dataId,
-        "id" : playerId + "_" + dataId,
+        "id" : GeneratePlayerUnlockItemId(playerId, dataId),
         "playerId" : playerId,
         "dataId" : dataId,
         "amount" : 0,
+        "timestamp" : new Date().getTime(),
     };
 }
     
@@ -329,11 +378,36 @@ function SetNewPlayerData(playerId)
     player.setScriptData("exp", 0);
     player.setScriptData("selectedFormation", firstFormation);
     
-    colPlayerClearStage.remove({ "playerId" : playerId });
-    colPlayerFormation.remove({ "playerId" : playerId });
-    colPlayerItem.remove({ "playerId" : playerId });
-    colPlayerStamina.remove({ "playerId" : playerId });
-    colPlayerUnlockItem.remove({ "playerId" : playerId });
+    // Clear Stage
+    var clearStageCursor = API.queryItems(colPlayerClearStage, API.S("playerId").eq(playerId), API.sort("dataId", false)).cursor();
+    while (clearStageCursor.hasNext())
+    {
+        clearStageCursor.next().delete();
+    }
+    // Formation
+    var formationCursor = API.queryItems(colPlayerFormation, API.S("playerId").eq(playerId), API.sort("dataId", false)).cursor();
+    while (formationCursor.hasNext())
+    {
+        formationCursor.next().delete();
+    }
+    // Item
+    var itemCursor = API.queryItems(colPlayerItem, API.S("playerId").eq(playerId), API.sort("dataId", false)).cursor();
+    while (itemCursor.hasNext())
+    {
+        itemCursor.next().delete();
+    }
+    // Stamina
+    var staminaCursor = API.queryItems(colPlayerStamina, API.S("playerId").eq(playerId), API.sort("dataId", false)).cursor();
+    while (staminaCursor.hasNext())
+    {
+        staminaCursor.next().delete();
+    }
+    // Unlock Item
+    var unlockItemCursor = API.queryItems(colPlayerUnlockItem, API.S("playerId").eq(playerId), API.sort("dataId", false)).cursor();
+    while (unlockItemCursor.hasNext())
+    {
+        unlockItemCursor.next().delete();
+    }
     
     var startItems = gameDatabase.startItems;
     var countStartItems = startItems.length;
@@ -350,15 +424,18 @@ function SetNewPlayerData(playerId)
             for (var j = 0; j < countCreateItems; ++j)
             {
                 var createItem = addItemsResult.createItems[j];
-                colPlayerItem.insert(createItem);
-                createItem.id = createItem._id.$oid;
-                colPlayerItem.update({ "_id" : createItem._id }, createItem);
+                var newItemEntry = API.createItem(colPlayerItem, createItem.id);
+                newItemEntry.setData(createItem);
+                newItemEntry.persistor().persist().error();
                 HelperUnlockItem(playerId, createItem.dataId);
             }
             for (var j = 0; j < countUpdateItems; ++j)
             {
                 var updateItem = addItemsResult.updateItem[j];
-                colPlayerItem.update({ "id" : updateItem.id }, updateItem);
+                var updateItemResult = API.getItem(colPlayerItem, updateItem.id);
+                var updateItemEntry = updateItemResult.document();
+                updateItemEntry.setData(updateItem);
+                updateItemEntry.persistor().persist().error();
             }
         }
     }
@@ -377,17 +454,20 @@ function SetNewPlayerData(playerId)
             var countUpdateItems = updateItems.length;
             for (var j = 0; j < countCreateItems; ++j)
             {
-                var createItem = createItems[j];
-                colPlayerItem.insert(createItem);
-                createItem.id = createItem._id.$oid;
-                colPlayerItem.update({ "_id" : createItem._id }, createItem);
+                var createItem = addItemsResult.createItems[j];
+                var newItemEntry = API.createItem(colPlayerItem, createItem.id);
+                newItemEntry.setData(createItem);
+                newItemEntry.persistor().persist().error();
                 HelperUnlockItem(playerId, createItem.dataId);
                 HelperSetFormation(playerId, createItem.id, firstFormation, i);
             }
             for (var j = 0; j < countUpdateItems; ++j)
             {
-                var updateItem = updateItem[j];
-                colPlayerItem.update({ "id" : updateItem.id }, updateItem);
+                var updateItem = addItemsResult.updateItem[j];
+                var updateItemResult = API.getItem(colPlayerItem, updateItem.id);
+                var updateItemEntry = updateItemResult.document();
+                updateItemEntry.setData(updateItem);
+                updateItemEntry.persistor().persist().error();
             }
         }
     }
@@ -403,7 +483,12 @@ function DecreasePlayerStamina(playerId, staminaType, decreaseAmount)
     if (stamina.amount >= decreaseAmount)
     {
         stamina.amount -= decreaseAmount;
-        colPlayerStamina.update({ "id" : stamina.id }, stamina);
+        var doc = API.getItem(colPlayerStamina, stamina.id).document();
+        if (doc)
+        {
+            doc.setData(stamina);
+            doc.persistor().persist().error();
+        }
         UpdatePlayerStamina(playerId, staminaType);
         return true;
     }
@@ -448,7 +533,12 @@ function UpdatePlayerStamina(playerId, staminaType)
         if (stamina.amount > maxStamina)
             stamina.amount = maxStamina;
         stamina.recoveredTime = currentTimeInMillisecond;
-        colPlayerStamina.update({ "id" : stamina.id }, stamina);
+        var doc = API.getItem(colPlayerStamina, stamina.id).document();
+        if (doc)
+        {
+            doc.setData(stamina);
+            doc.persistor().persist().error();
+        }
     }
 }
 
@@ -465,11 +555,23 @@ function GetCurrency(playerId, dataId)
 
 function GetStamina(playerId, dataId)
 {
-    var stamina = colPlayerStamina.findOne({ "playerId" : playerId, "dataId" : dataId });
-    if (stamina == null)
+    var queryResult = API.queryItems(
+        colPlayerStamina,
+        API.S("playerId").eq(playerId).and(API.S("dataId").eq(dataId)),
+        API.sort("id", false));
+    var result = queryResult.cursor();
+    var stamina;
+    if (!result.hasNext())
     {
         stamina = CreatePlayerStamina(playerId, dataId);
-        colPlayerStamina.insert(stamina);
+        var id = stamina.id;
+        var newEntry = API.createItem(colPlayerStamina, id);
+        newEntry.setData(stamina);
+        newEntry.persistor().persist().error();
+    }
+    else
+    {
+        stamina = result.next().getData();
     }
     return stamina;
 }
@@ -487,7 +589,11 @@ function AddItems(playerId, dataId, amount)
         return { "success" : false };
         
     var maxStack = item.maxStack;
-    var oldEntries = colPlayerItem.find({ "playerId" : playerId, "dataId" : dataId, "amount" : { "$lt": maxStack }});
+    var queryResult = API.queryItems(
+        colPlayerItem,
+        API.S("playerId").eq(playerId).and(API.S("dataId").eq(dataId)).and(API.N("amount").lt(maxStack)),
+        API.sort("id", false));
+    var oldEntries = queryResult.cursor();
     var createItems = [];
     var updateItems = [];
     while (oldEntries.hasNext())
@@ -529,59 +635,104 @@ function AddItems(playerId, dataId, amount)
 
 function HelperSetFormation(playerId, characterId, formationName, position)
 {
+    var newFormation;
+    var oldFormation;
+    var oldFormationEntry;
     if (characterId && characterId.length > 0)
     {
-        var oldFormation = colPlayerFormation.findOne({ "playerId" : playerId, "dataId" : formationName, "itemId" : characterId });
-        if (oldFormation)
+        var oldQueryResult = API.queryItems(colPlayerFormation,
+            API.S("playerId").eq(playerId).and(API.S("dataId").eq(formationName)).and(API.S("itemId").eq(characterId)));
+        var oldResult = oldQueryResult.cursor();
+        if (oldResult.hasNext())
         {
+            oldFormationEntry = result.next();
+            oldFormation = oldFormationEntry.getData();
             oldFormation.itemId = "";
-            colPlayerFormation.update({ "id" : oldFormation.id }, oldFormation);
+            oldFormationEntry.setData(oldFormation);
+            oldFormationEntry.persistor().persist().error();
         }
     }
-    var formation = colPlayerFormation.findOne({ "playerId" : playerId, "dataId" : formationName, "position" : position });
+    var formation;
+    var formationDoc = API.getItem(colPlayerFormation, GeneratePlayerFormationId(playerId, formationName, position)).document();
+    if (formationDoc)
+    {
+        formation = formationDoc.getData();
+    }
     if (!formation)
     {
         formation = CreatePlayerFormation(playerId, formationName, position);
         formation.itemId = characterId;
-        colPlayerFormation.insert(formation);
+        var newEntry = API.createItem(colPlayerFormation, formation.id);
+        newEntry.setData(formation);
+        newEntry.persistor().persist().error();
+        newFormation = formation;
     }
     else
     {
         if (oldFormation)
         {
             oldFormation.itemId = formation.itemId;
-            colPlayerFormation.update({ "id" : oldFormation.id }, oldFormation);
+            oldFormationEntry.setData(oldFormation);
+            oldFormationEntry.persistor().persist().error();
         }
         formation.itemId = characterId;
-        colPlayerFormation.update({ "id" : formation.id }, formation);
+        formationDoc.setData(formation);
+        formationDoc.persistor().persist().error();
     }
+    if (!oldFormation)
+    {
+        oldFormation = {};
+    }
+    if (!newFormation)
+    {
+        newFormation = {};
+    }
+    return { oldFormation: oldFormation, newFormation: newFormation };
 }
 
 function HelperUnlockItem(playerId, dataId)
 {
-    var unlockItem = colPlayerUnlockItem.findOne({ "playerId" : playerId, "dataId" : dataId });
+    var unlockItem;
+    var doc = API.getItem(colPlayerUnlockItem, GeneratePlayerUnlockItemId(playerId, dataId)).document();
+    if (doc)
+    {
+        unlockItem = doc.getData();
+    }
     if (!unlockItem)
     {
         unlockItem = CreatePlayerUnlockItem(playerId, dataId);
-        colPlayerUnlockItem.insert(unlockItem);
+        var newEntry = API.createItem(colPlayerUnlockItem, unlockItem.id);
+        newEntry.setData(unlockItem);
+        newEntry.persistor().persist().error();
     }
+    return unlockItem;
 }
 
-function HelperClearStage(playerId, dataId, grade)
+function HelperClearStage(playerId, dataId, rating)
 {
-    var clearStage = colPlayerClearStage.findOne({ "playerId" : playerId, "dataId" : dataId });
-    if (clearStage == null)
+    var clearStage;
+    var doc = API.getItem(colPlayerClearStage, GeneratePlayerClearStageId(playerId, dataId)).document();
+    if (doc)
+    {
+        clearStage = doc.getData();
+    }
+    if (!clearStage)
     {
         clearStage = CreatePlayerClearStage(playerId, dataId);
-        clearStage.bestRating = grade;
-        colPlayerClearStage.insert(clearStage);
+        clearStage.bestRating = rating;
+        var newEntry = API.createItem(colPlayerClearStage, clearStage.id);
+        newEntry.setData(clearStage);
+        newEntry.persistor().persist().error();
     }
     else
     {
-        if (clearStage.bestRating < grade)
+        // If end stage with more rating, replace old rating
+        if (clearStage.bestRating < rating)
         {
-            clearStage.bestRating = grade;
-            colPlayerClearStage.update({ "id" : clearStage.id }, clearStage);
+            clearStage.bestRating = rating;
+            clearStageEntry.setData(clearStage);
+            clearStageEntry.persistor().persist().error();
         }
     }
+    return clearStage;
 }

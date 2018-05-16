@@ -27,18 +27,27 @@
 // SOFTWARE.
 // ====================================================================================================
 
-var colPlayerItem = Spark.runtimeCollection("playerItem");
-var colPlayerStamina = Spark.runtimeCollection("playerStamina");
-var colPlayerFormation = Spark.runtimeCollection("playerFormation");
-var colPlayerUnlockItem = Spark.runtimeCollection("playerUnlockItem");
-var colPlayerClearStage = Spark.runtimeCollection("playerClearStage");
-var colPlayerBattle = Spark.runtimeCollection("playerBattle");
+var API = Spark.getGameDataService();
+var colPlayerItem = "playerItem";
+var colPlayerStamina = "playerStamina";
+var colPlayerFormation = "playerFormation";
+var colPlayerUnlockItem = "playerUnlockItem";
+var colPlayerClearStage = "playerClearStage";
+var colPlayerBattle = "playerBattle";
 
 function StartStage(stageDataId)
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
-    colPlayerBattle.remove({ "playerId" : playerId, "battleResult" : ENUM_BATTLE_RESULT_NONE });
+    var queryResult = API.queryItems(
+        colPlayerBattle, 
+        API.S("playerId").eq(playerId).and(API.N("battleResult").eq(ENUM_BATTLE_RESULT_NONE)),
+        API.sort("id", false));
+    var result = queryResult.cursor();
+    while (result.hasNext())
+    {
+        result.next().delete();
+    }
     var stage = gameDatabase.stages[stageDataId];
     if (!stage)
     {
@@ -51,14 +60,13 @@ function StartStage(stageDataId)
     else
     {
         var session = playerId + "_" + stageDataId + "_" + Date.now();
-        var playerBattle = CreatePlayerBattle(playerId, stageDataId, session);
-        colPlayerBattle.insert(playerBattle);
-        playerBattle.id = playerBattle._id.$oid;
-        colPlayerBattle.update({ "_id" : playerBattle._id }, playerBattle);
-        
+        var newData = CreatePlayerBattle(playerId, stageDataId, session);
+        var id = newData.id;
+        var newEntry = API.createItem(colPlayerBattle, id);
+        newEntry.setData(newData);
+        newEntry.persistor().persist().error();
         var staminaTable = gameDatabase.staminas["STAGE"];
         var stamina = GetStamina(playerId, staminaTable.id);
-        
         Spark.setScriptData("stamina", stamina);
         Spark.setScriptData("session", session);
     }
@@ -68,144 +76,154 @@ function FinishStage(session, battleResult, deadCharacters)
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
-    var battle = colPlayerBattle.findOne({ "playerId" : playerId, "session" : session });
-    if (!battle)
+    var queryResult = API.queryItems(
+        colPlayerBattle, 
+        API.S("playerId").eq(playerId).and(API.S("session").eq(session)),
+        API.sort("id", false));
+    var result = queryResult.cursor();
+    if (!result.hasNext())
     {
         Spark.setScriptData("error", ERROR_INVALID_BATTLE_SESSION);
     }
-    else if (!gameDatabase.stages[battle.dataId])
-    {
-        Spark.setScriptData("error", ERROR_INVALID_STAGE_DATA);
-    }
     else
     {
-        // Prepare results
-        var rewardItems = [];
-        var createItems = [];
-        var updateItems = [];
-        var deleteItemIds = [];
-        var updateCurrencies = [];
-        var rewardPlayerExp = 0;
-        var rewardCharacterExp = 0;
-        var rewardSoftCurrency = 0;
-        var rating = 0;
-        var clearedStage = {};
-        // Set battle session
-        battle.battleResult = battleResult;
-        if (battleResult == ENUM_BATTLE_RESULT_WIN)
+        var battleEntry = result.next();
+        var battle = battleEntry.getData();
+        if (!gameDatabase.stages[battle.dataId])
         {
-            rating = 3 - deadCharacters;
-            if (rating <= 0)
-                rating = 1;
+            Spark.setScriptData("error", ERROR_INVALID_STAGE_DATA);
         }
-        battle.rating = rating;
-        colPlayerBattle.update({ "id" : battle.id }, battle);
-        if (battleResult == ENUM_BATTLE_RESULT_WIN)
+        else
         {
-            var playerSelectedFormation = player.getScriptData("selectedFormation");
-            var stage = gameDatabase.stages[battle.dataId];
-            rewardPlayerExp = stage.rewardPlayerExp;
-            // Player exp
-            var playerExp = player.getScriptData("exp");
-            playerExp += rewardPlayerExp;
-            player.setScriptData("exp", playerExp);
-            // Character exp
-            var characterIds = [];
-            var formations = colPlayerFormation.find({ "playerId" : playerId, "dataId" : playerSelectedFormation });
-            var countFormation = 0;
-            while (formations.hasNext())
+            // Prepare results
+            var rewardItems = [];
+            var createItems = [];
+            var updateItems = [];
+            var deleteItemIds = [];
+            var updateCurrencies = [];
+            var rewardPlayerExp = 0;
+            var rewardCharacterExp = 0;
+            var rewardSoftCurrency = 0;
+            var rating = 0;
+            var clearedStage = {};
+            // Set battle session
+            battle.battleResult = battleResult;
+            if (battleResult == ENUM_BATTLE_RESULT_WIN)
             {
-                var formation = formations.next();
-                if (formation.itemId) {
-                    characterIds.push(formation.itemId);
-                    ++countFormation;
-                }
+                rating = 3 - deadCharacters;
+                if (rating <= 0)
+                    rating = 1;
             }
-            if (countFormation > 0)
+            battle.rating = rating;
+            battleEntry.setData(battle);
+            battleEntry.persistor().persist().error();
+            if (battleResult == ENUM_BATTLE_RESULT_WIN)
             {
-                var devivedExp = Math.floor(stage.rewardCharacterExp / countFormation);
-                rewardCharacterExp = devivedExp;
-                var countCharacterIds = characterIds.length;
-                for (var i = 0; i < countCharacterIds; ++i)
+                var playerSelectedFormation = player.getScriptData("selectedFormation");
+                var stage = gameDatabase.stages[battle.dataId];
+                rewardPlayerExp = stage.rewardPlayerExp;
+                // Player exp
+                var playerExp = player.getScriptData("exp");
+                playerExp += rewardPlayerExp;
+                player.setScriptData("exp", playerExp);
+                // Character exp
+                var characterIds = [];
+                var countFormation = 0;
+                var formationsQueryResult = API.queryItems(
+                    colPlayerFormation, 
+                    API.S("playerId").eq(playerId).and(API.S("dataId").eq(playerSelectedFormation)),
+                    API.sort("id", false));
+                var formationsResult = formationsQueryResult.cursor();
+                while (formationsResult.hasNext())
                 {
-                    var characterId = characterIds[i];
-                    var character = colPlayerItem.findOne({ "id" : characterId });
-                    if (character)
+                    var formationEntry = formationsResult.next();
+                    var formation = formationEntry.getData();
+                    if (formation.itemId)
                     {
-                        character.exp += devivedExp;
-                        colPlayerItem.update({ "id" : character.id }, character);
-                        updateItems.push(character);
+                        characterIds.push(formation.itemId);
+                        ++countFormation;
                     }
                 }
-            }
-            // Soft currency
-            rewardSoftCurrency = RandomRange(stage.randomSoftCurrencyMinAmount, stage.randomSoftCurrencyMaxAmount);
-            player.credit(gameDatabase.currencies.SOFT_CURRENCY, rewardSoftCurrency, "Pass Stage [" + session + "]");
-            var softCurrency = GetCurrency(playerId, gameDatabase.currencies.SOFT_CURRENCY);
-            updateCurrencies.push(softCurrency);
-            // Items
-            var countRewardItems = stage.rewardItems.length;
-            for (var i = 0; i < countRewardItems; ++i)
-            {
-                var rewardItem = stage.rewardItems[i];
-                if (!rewardItem || !rewardItem.id || RandomRange(0, 1) > rewardItem.randomRate)
+                if (countFormation > 0)
                 {
-                    continue;
-                }
-                    
-                var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
-                if (addItemsResult.success)
-                {
-                    var countCreateItems = addItemsResult.createItems.length;
-                    var countUpdateItems = addItemsResult.updateItems.length;
-                    for (var j = 0; j < countCreateItems; ++j)
+                    var devivedExp = Math.floor(stage.rewardCharacterExp / countFormation);
+                    rewardCharacterExp = devivedExp;
+                    var countCharacterIds = characterIds.length;
+                    for (var i = 0; i < countCharacterIds; ++i)
                     {
-                        var createItem = addItemsResult.createItems[j];
-                        colPlayerItem.insert(createItem);
-                        createItem.id = createItem._id.$oid;
-                        colPlayerItem.update({ "_id" : createItem._id }, createItem);
-                        HelperUnlockItem(playerId, createItem.dataId);
-                        rewardItems.push(createItem);
-                        createItems.push(createItem);
-                    }
-                    for (var j = 0; j < countUpdateItems; ++j)
-                    {
-                        var updateItem = addItemsResult.updateItem[j];
-                        colPlayerItem.update({ "id" : updateItem.id }, updateItem);
-                        rewardItems.push(updateItem);
-                        updateItems.push(updateItem);
+                        var characterId = characterIds[i];
+                        var characterQueryResult = API.getItem(colPlayerItem, characterId);
+                        var characterEntry = characterQueryResult.document();
+                        if (characterEntry)
+                        {
+                            var character = characterEntry.getData();
+                            character.exp += devivedExp;
+                            characterEntry.setData(character);
+                            characterEntry.persistor().persist().error();
+                            updateItems.push(character);
+                        }
                     }
                 }
-                // End add item condition
-            }
-            // End reward items loop
-            clearedStage = colPlayerClearStage.findOne({ "playerId" : playerId, "dataId" : stage.id });
-            if (!clearedStage)
-            {
-                clearedStage = CreatePlayerClearStage(playerId, stage.id);
-                clearedStage.bestRating = rating;
-                colPlayerClearStage.insert(clearedStage);
-            }
-            else
-            {
-                if (clearedStage.bestRating < rating)
+                // Soft currency
+                rewardSoftCurrency = RandomRange(stage.randomSoftCurrencyMinAmount, stage.randomSoftCurrencyMaxAmount);
+                player.credit(gameDatabase.currencies.SOFT_CURRENCY, rewardSoftCurrency, "Pass Stage [" + session + "]");
+                var softCurrency = GetCurrency(playerId, gameDatabase.currencies.SOFT_CURRENCY);
+                updateCurrencies.push(softCurrency);
+                // Items
+                var countRewardItems = stage.rewardItems.length;
+                for (var i = 0; i < countRewardItems; ++i)
                 {
-                    clearedStage.bestRating = rating;
-                    colPlayerClearStage.update({ "id" : clearedStage.id }, clearedStage);
+                    var rewardItem = stage.rewardItems[i];
+                    if (!rewardItem || !rewardItem.id || RandomRange(0, 1) > rewardItem.randomRate)
+                    {
+                        continue;
+                    }
+                        
+                    var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
+                    if (addItemsResult.success)
+                    {
+                        var countCreateItems = addItemsResult.createItems.length;
+                        var countUpdateItems = addItemsResult.updateItems.length;
+                        for (var j = 0; j < countCreateItems; ++j)
+                        {
+                            var createItem = addItemsResult.createItems[j];
+                            var newItemId = createItem.id;
+                            var newItemEntry = API.createItem(colPlayerItem, newItemId);
+                            newItemEntry.setData(createItem);
+                            newItemEntry.persistor().persist().error();
+                            HelperUnlockItem(playerId, createItem.dataId);
+                            rewardItems.push(createItem);
+                            createItems.push(createItem);
+                        }
+                        for (var j = 0; j < countUpdateItems; ++j)
+                        {
+                            var updateItem = addItemsResult.updateItem[j];
+                            var updateItemResult = API.getItem(colPlayerItem, updateItem.id);
+                            var updateItemEntry = updateItemResult.document();
+                            updateItemEntry.setData(updateItem);
+                            updateItemEntry.persistor().persist().error();
+                            rewardItems.push(updateItem);
+                            updateItems.push(updateItem);
+                        }
+                    }
+                    // End add item condition
                 }
+                // End reward items loop
+                
+                clearedStage = HelperClearStage(playerId, stage.id, rating);
             }
+            Spark.setScriptData("rewardItems", rewardItems);
+            Spark.setScriptData("createItems", createItems);
+            Spark.setScriptData("updateItems", updateItems);
+            Spark.setScriptData("deleteItemIds", deleteItemIds);
+            Spark.setScriptData("updateCurrencies", updateCurrencies);
+            Spark.setScriptData("rewardPlayerExp", rewardPlayerExp);
+            Spark.setScriptData("rewardCharacterExp", rewardCharacterExp);
+            Spark.setScriptData("rewardSoftCurrency", rewardSoftCurrency);
+            Spark.setScriptData("rating", rating);
+            Spark.setScriptData("clearStage", clearedStage);
+            Spark.setScriptData("player", GetPlayer(playerId));
         }
-        Spark.setScriptData("rewardItems", rewardItems);
-        Spark.setScriptData("createItems", createItems);
-        Spark.setScriptData("updateItems", updateItems);
-        Spark.setScriptData("deleteItemIds", deleteItemIds);
-        Spark.setScriptData("updateCurrencies", updateCurrencies);
-        Spark.setScriptData("rewardPlayerExp", rewardPlayerExp);
-        Spark.setScriptData("rewardCharacterExp", rewardCharacterExp);
-        Spark.setScriptData("rewardSoftCurrency", rewardSoftCurrency);
-        Spark.setScriptData("rating", rating);
-        Spark.setScriptData("clearStage", clearedStage);
-        Spark.setScriptData("player", GetPlayer(playerId));
     }
 }
 
@@ -250,6 +268,22 @@ function SetFormation(characterId, formationName, position)
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
     
-    HelperSetFormation(playerId, characterId, formationName, position);
-    GetFormationList();
+    var formations = HelperSetFormation(playerId, characterId, formationName, position);
+    
+    var list = [];
+    var queryResult = API.queryItems(colPlayerFormation, API.S("playerId").eq(playerId), API.sort("timestamp", false));
+    if (!queryResult.error())
+    {
+        var result = queryResult.cursor();
+        while (result.hasNext())
+        {
+            var entry = result.next();
+            list.push(entry.getData());
+        }
+    }
+    if (formations.newFormation)
+    {
+        list.push(formations.newFormation);
+    }
+    Spark.setScriptData("list", list);
 }
