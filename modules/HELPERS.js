@@ -693,10 +693,10 @@ function HelperSetFormation(playerId, characterId, formationName, position)
 function HelperUnlockItem(playerId, dataId)
 {
     var unlockItem;
-    var doc = API.getItem(colPlayerUnlockItem, GeneratePlayerUnlockItemId(playerId, dataId)).document();
-    if (doc)
+    var unlockItemDoc = API.getItem(colPlayerUnlockItem, GeneratePlayerUnlockItemId(playerId, dataId)).document();
+    if (unlockItemDoc)
     {
-        unlockItem = doc.getData();
+        unlockItem = unlockItemDoc.getData();
     }
     if (!unlockItem)
     {
@@ -711,10 +711,10 @@ function HelperUnlockItem(playerId, dataId)
 function HelperClearStage(playerId, dataId, rating)
 {
     var clearStage;
-    var doc = API.getItem(colPlayerClearStage, GeneratePlayerClearStageId(playerId, dataId)).document();
-    if (doc)
+    var clearStageDoc = API.getItem(colPlayerClearStage, GeneratePlayerClearStageId(playerId, dataId)).document();
+    if (clearStageDoc)
     {
-        clearStage = doc.getData();
+        clearStage = clearStageDoc.getData();
     }
     if (!clearStage)
     {
@@ -730,8 +730,8 @@ function HelperClearStage(playerId, dataId, rating)
         if (clearStage.bestRating < rating)
         {
             clearStage.bestRating = rating;
-            clearStageEntry.setData(clearStage);
-            clearStageEntry.persistor().persist().error();
+            clearStageDoc.setData(clearStage);
+            clearStageDoc.persistor().persist().error();
         }
     }
     return clearStage;
