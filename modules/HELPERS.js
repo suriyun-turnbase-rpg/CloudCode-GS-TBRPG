@@ -641,15 +641,20 @@ function HelperSetFormation(playerId, characterId, formationName, position)
     if (characterId && characterId.length > 0)
     {
         var oldQueryResult = API.queryItems(colPlayerFormation,
-            API.S("playerId").eq(playerId).and(API.S("dataId").eq(formationName)).and(API.S("itemId").eq(characterId)));
+            API.S("playerId").eq(playerId).and(API.S("dataId").eq(formationName)));
         var oldResult = oldQueryResult.cursor();
-        if (oldResult.hasNext())
+        while (oldResult.hasNext())
         {
-            oldFormationEntry = result.next();
-            oldFormation = oldFormationEntry.getData();
-            oldFormation.itemId = "";
-            oldFormationEntry.setData(oldFormation);
-            oldFormationEntry.persistor().persist().error();
+            var entry = oldResult.next();
+            var entryData = entry.getData();
+            if (entryData.itemId == characterId)
+            {
+                oldFormationEntry = entry;
+                oldFormation = entryData;
+                oldFormation.itemId = "";
+                oldFormationEntry.setData(oldFormation);
+                oldFormationEntry.persistor().persist().error();
+            }
         }
     }
     var formation;

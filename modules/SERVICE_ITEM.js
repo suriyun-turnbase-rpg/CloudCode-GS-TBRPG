@@ -419,7 +419,7 @@ function EquipItem(characterId, equipmentId, equipPosition)
             {
                 var unEquipItemDoc = unEquipItemCursor.next();
                 var unEquipItem = unEquipItemDoc.getData();
-                if (unEquipItem.equipItemId === characterId && unEquipItem.equipPosition === equipPosition)
+                if (unEquipItem.equipItemId == characterId && unEquipItem.equipPosition == equipPosition)
                 {
                     unEquipItem.equipItemId = "";
                     unEquipItem.equipPosition = "";
