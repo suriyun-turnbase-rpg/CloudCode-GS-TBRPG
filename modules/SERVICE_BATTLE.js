@@ -131,14 +131,13 @@ function FinishStage(session, battleResult, deadCharacters)
                 var countFormation = 0;
                 var formationsQueryResult = API.queryItems(
                     colPlayerFormation, 
-                    API.S("playerId").eq(playerId).and(API.S("dataId").eq(playerSelectedFormation)),
-                    API.sort("id", false));
+                    API.S("playerId").eq(playerId));
                 var formationsResult = formationsQueryResult.cursor();
                 while (formationsResult.hasNext())
                 {
                     var formationEntry = formationsResult.next();
                     var formation = formationEntry.getData();
-                    if (formation.itemId)
+                    if (formation.dataId == playerSelectedFormation && formation.itemId)
                     {
                         characterIds.push(formation.itemId);
                         ++countFormation;

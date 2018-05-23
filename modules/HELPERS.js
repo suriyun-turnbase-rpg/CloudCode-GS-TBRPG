@@ -641,13 +641,13 @@ function HelperSetFormation(playerId, characterId, formationName, position)
     if (characterId && characterId.length > 0)
     {
         var oldQueryResult = API.queryItems(colPlayerFormation,
-            API.S("playerId").eq(playerId).and(API.S("dataId").eq(formationName)));
+            API.S("playerId").eq(playerId));
         var oldResult = oldQueryResult.cursor();
         while (oldResult.hasNext())
         {
             var entry = oldResult.next();
             var entryData = entry.getData();
-            if (entryData.itemId == characterId)
+            if (entryData.itemId == characterId && entryData.dataId == formationName)
             {
                 oldFormationEntry = entry;
                 oldFormation = entryData;
