@@ -413,17 +413,20 @@ function EquipItem(characterId, equipmentId, equipPosition)
             var updateItems = [];
             var unEquipItemQueryResult = API.queryItems(
                 colPlayerItem,
-                API.S("equipItemId").eq(characterId).and(API.S("equipPosition").eq(equipPosition)).and(API.S("playerId").eq(playerId)));
+                API.S("playerId").eq(playerId));
             var unEquipItemCursor = unEquipItemQueryResult.cursor();
-            if (unEquipItemCursor.hasNext())
+            while (unEquipItemCursor.hasNext())
             {
                 var unEquipItemDoc = unEquipItemCursor.next();
                 var unEquipItem = unEquipItemDoc.getData();
-                unEquipItem.equipItemId = "";
-                unEquipItem.equipPosition = "";
-                unEquipItemDoc.setData(unEquipItem);
-                unEquipItemDoc.persistor().persist().error();
-                updateItems.push(unEquipItem);
+                if (unEquipItem.equipItemId === characterId && unEquipItem.equipPosition === equipPosition)
+                {
+                    unEquipItem.equipItemId = "";
+                    unEquipItem.equipPosition = "";
+                    unEquipItemDoc.setData(unEquipItem);
+                    unEquipItemDoc.persistor().persist().error();
+                    updateItems.push(unEquipItem);
+                }
             }
             equipment.equipItemId = characterId;
             equipment.equipPosition = equipPosition;
