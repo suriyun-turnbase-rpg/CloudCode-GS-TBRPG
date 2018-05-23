@@ -446,8 +446,13 @@ function UnEquipItem(equipmentId)
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
-    var unEquipItem = colPlayerItem.findOne({ "id" : equipmentId, "playerId" : playerId });
-    if (!unEquipItem)
+    var unEquipItemDoc = API.getItem(colPlayerItem, equipmentId).document();
+    var unEquipItem;
+    if (unEquipItemDoc)
+    {
+        unEquipItem = unEquipItemDoc.getData();
+    }
+    if (!unEquipItem || unEquipItem.playerId != playerId)
     {
         Spark.setScriptData("error", ERROR_INVALID_PLAYER_ITEM_DATA);
     }
@@ -456,12 +461,8 @@ function UnEquipItem(equipmentId)
         var updateItems = [];
         unEquipItem.equipItemId = "";
         unEquipItem.equipPosition = "";
-        var unEquipItemDoc = API.getItem(colPlayerItem, unEquipItem.id).document();
-        if (unEquipItemDoc)
-        {
-            unEquipItemDoc.setData(unEquipItem);
-            unEquipItemDoc.persistor().persist().error();
-        }
+        unEquipItemDoc.setData(unEquipItem);
+        unEquipItemDoc.persistor().persist().error();
         updateItems.push(unEquipItem);
         Spark.setScriptData("updateItems", updateItems);
     }
