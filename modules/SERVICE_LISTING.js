@@ -173,7 +173,8 @@ function GetFriendList()
     while (result.hasNext())
     {
         var entry = result.next();
-        var targetPlayerId = entry.targetPlayerId;
+        var data = entry.getData();
+        var targetPlayerId = data.targetPlayerId;
         if (playerId === targetPlayerId)
         {
             continue;
@@ -198,7 +199,8 @@ function GetFriendRequestList()
     while (result.hasNext())
     {
         var entry = result.next();
-        var targetPlayerId = entry.targetPlayerId;
+        var data = entry.getData();
+        var targetPlayerId = data.targetPlayerId;
         if (playerId === targetPlayerId)
         {
             continue;

@@ -619,7 +619,7 @@ function AddItems(playerId, dataId, amount)
     var updateItems = [];
     while (oldEntries.hasNext())
     {
-        var entry = oldEntries.next();
+        var entry = oldEntries.next().getData();
         var sumAmount = entry.amount + amount;
         if (sumAmount > maxStack)
         {
@@ -863,7 +863,8 @@ function GetPlayerIds()
     while (result.hasNext())
     {
         var entry = result.next();
-        playerIds.push(entry.playerId);
+        var data = entry.getData();
+        playerIds.push(data.playerId);
     }
     return playerIds;
 }
