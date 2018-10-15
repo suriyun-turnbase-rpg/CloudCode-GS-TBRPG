@@ -204,7 +204,7 @@ function GetFriendRequestList()
     {
         var entry = result.next();
         var data = entry.getData();
-        var targetPlayerId = data.targetPlayerId;
+        var targetPlayerId = data.playerId;
         if (playerId === targetPlayerId)
         {
             continue;
