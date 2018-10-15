@@ -127,25 +127,10 @@ function FinishStage(session, battleResult, deadCharacters)
                 playerExp += rewardPlayerExp;
                 player.setScriptData("exp", playerExp);
                 // Character exp
-                var characterIds = [];
-                var countFormation = 0;
-                var formationsQueryResult = API.queryItems(
-                    colPlayerFormation, 
-                    API.S("playerId").eq(playerId));
-                var formationsResult = formationsQueryResult.cursor();
-                while (formationsResult.hasNext())
+                var characterIds = GetFormationCharacterIds(playerId, playerSelectedFormation);
+                if (characterIds.length > 0)
                 {
-                    var formationEntry = formationsResult.next();
-                    var formation = formationEntry.getData();
-                    if (formation.dataId == playerSelectedFormation && formation.itemId)
-                    {
-                        characterIds.push(formation.itemId);
-                        ++countFormation;
-                    }
-                }
-                if (countFormation > 0)
-                {
-                    var devivedExp = Math.floor(stage.rewardCharacterExp / countFormation);
+                    var devivedExp = Math.floor(stage.rewardCharacterExp / characterIds.length);
                     rewardCharacterExp = devivedExp;
                     var countCharacterIds = characterIds.length;
                     for (var i = 0; i < countCharacterIds; ++i)

@@ -46,6 +46,26 @@ function GenerateUUID()
     return uuid;
 }
 
+function ShuffleArray(array)
+{
+    var currentIndex = array.length, temporaryValue, randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+}
+
 function RandomRange(min, max)
 {
     return Math.random() * (max - min) + min;
@@ -740,4 +760,94 @@ function HelperClearStage(playerId, dataId, rating)
         }
     }
     return clearStage;
+}
+
+function GetFormationCharacterIds(playerId, playerSelectedFormation)
+{
+    var characterIds = [];
+    var formationsQueryResult = API.queryItems(
+        colPlayerFormation, 
+        API.S("playerId").eq(playerId));
+    var formationsResult = formationsQueryResult.cursor();
+    while (formationsResult.hasNext())
+    {
+        var formationEntry = formationsResult.next();
+        var formation = formationEntry.getData();
+        if (formation.dataId == playerSelectedFormation && formation.itemId)
+        {
+            characterIds.push(formation.itemId);
+        }
+    }
+    return characterIds;
+}
+
+function GetFormationCharacter(playerId, playerSelectedFormation)
+{
+    var characters = [];
+    var characterIds = GetFormationCharacterIds(playerId, playerSelectedFormation);
+    for (var i = 0; i < characterIds.length; ++i)
+    {
+        var characterId = characterIds[i];
+        var characterQueryResult = API.getItem(colPlayerItem, characterId);
+        var characterEntry = characterQueryResult.document();
+        if (characterEntry)
+        {
+            characters.push(characterEntry);
+        }
+    }
+    return characters;
+}
+
+function GetLeaderCharacter(playerId, playerSelectedFormation)
+{
+    var characterEntry = undefined;
+    var formationsQueryResult = API.queryItems(
+        colPlayerFormation, 
+        API.S("playerId").eq(playerId));
+    var formationsResult = formationsQueryResult.cursor();
+    while (formationsResult.hasNext())
+    {
+        var formationEntry = formationsResult.next();
+        var formation = formationEntry.getData();
+        if (formation.dataId == playerSelectedFormation && formation.itemId)
+        {
+            var characterQueryResult = API.getItem(colPlayerItem, formation.itemId);
+            var currentCharacterEntry = characterQueryResult.document();
+            if (currentCharacterEntry)
+            {
+                if (!characterEntry)
+                {
+                    // Set first found character, will return it when leader not found
+                    characterEntry = currentCharacterEntry;
+                }
+                if (formation.isLeader)
+                {
+                    return characterEntry;
+                }
+            }
+        }
+    }
+    return characterEntry;
+}
+
+function GetSocialPlayer(playerId, targetPlayerId)
+{
+    var player = Spark.loadPlayer(targetPlayerId);
+    if (player)
+    {
+        var queryResult = API.queryItems(colPlayerFriend, API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)), API.sort("timestamp", false));
+        var result = queryResult.cursor();
+        var isFriend = result.hasNext();
+        var playerSelectedFormation = player.getScriptData("selectedFormation");
+        var character = GetLeaderCharacter(targetPlayerId, playerSelectedFormation);
+        return {
+            "id" : targetPlayerId,
+            "profileName" : player.getDisplayName(),
+            "exp" : player.getScriptData("exp"),
+            "mainCharacter" : character ? character.dataId : "",
+            "mainCharacterExp" : character ? character.exp : 0,
+            "isFriend" : isFriend
+        };
+    }
+    return undefined;
 }

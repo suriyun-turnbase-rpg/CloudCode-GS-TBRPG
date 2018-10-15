@@ -141,22 +141,47 @@ function GetClearStageList()
 
 function GetHelperList()
 {
-    
+    var maximum = 25;
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    var playerIds = ShuffleArray(Spark.getPlayerIds());
+    var list = [];
+    for (var i = 0; i < playerIds.length; ++i)
+    {
+        var targetPlayerId = playerIds[i];
+        if (playerId === targetPlayerId)
+        {
+            continue;
+        }
+        list.push(GetSocialPlayer(playerId, targetPlayerId));
+        if (list.length >= maximum)
+        {
+            break;
+        }
+    }
+    Spark.setScriptData("list", list);
 }
 
 function GetFriendList()
 {
+    var maximum = 50;
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
     var list = [];
     var queryResult = API.queryItems(colPlayerFriend, API.S("playerId").eq(playerId), API.sort("timestamp", false));
-    if (!queryResult.error())
+    var result = queryResult.cursor();
+    while (result.hasNext())
     {
-        var result = queryResult.cursor();
-        while (result.hasNext())
+        var entry = result.next();
+        var targetPlayerId = entry.targetPlayerId;
+        if (playerId === targetPlayerId)
         {
-            var entry = result.next();
-            list.push(entry.getData());
+            continue;
+        }
+        list.push(GetSocialPlayer(playerId, targetPlayerId));
+        if (list.length >= maximum)
+        {
+            break;
         }
     }
     Spark.setScriptData("list", list);
@@ -164,17 +189,24 @@ function GetFriendList()
 
 function GetFriendRequestList()
 {
+    var maximum = 50;
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
     var list = [];
-    var queryResult = API.queryItems(colPlayerFriendRequest, API.S("playerId").eq(playerId), API.sort("timestamp", false));
-    if (!queryResult.error())
+    var queryResult = API.queryItems(colPlayerFriendRequest, API.S("targetPlayerId").eq(playerId), API.sort("timestamp", false));
+    var result = queryResult.cursor();
+    while (result.hasNext())
     {
-        var result = queryResult.cursor();
-        while (result.hasNext())
+        var entry = result.next();
+        var targetPlayerId = entry.targetPlayerId;
+        if (playerId === targetPlayerId)
         {
-            var entry = result.next();
-            list.push(entry.getData());
+            continue;
+        }
+        list.push(GetSocialPlayer(playerId, targetPlayerId));
+        if (list.length >= maximum)
+        {
+            break;
         }
     }
     Spark.setScriptData("list", list);
