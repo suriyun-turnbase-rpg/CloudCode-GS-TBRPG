@@ -839,16 +839,20 @@ function GetSocialPlayer(playerId, targetPlayerId)
         var queryResult = API.queryItems(colPlayerFriend, API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)), API.sort("timestamp", false));
         var result = queryResult.cursor();
         var isFriend = result.hasNext();
+        var displayName = player.getDisplayName();
         var playerSelectedFormation = player.getScriptData("selectedFormation");
         var character = GetLeaderCharacter(targetPlayerId, playerSelectedFormation);
-        return {
-            "id" : targetPlayerId,
-            "profileName" : player.getDisplayName(),
-            "exp" : player.getScriptData("exp"),
-            "mainCharacter" : character ? character.dataId : "",
-            "mainCharacterExp" : character ? character.exp : 0,
-            "isFriend" : isFriend
-        };
+        if (displayName && character)
+        {
+            return {
+                "id" : targetPlayerId,
+                "profileName" : displayName,
+                "exp" : player.getScriptData("exp"),
+                "mainCharacter" : character.dataId,
+                "mainCharacterExp" : character.exp,
+                "isFriend" : isFriend
+            };
+        }
     }
     return undefined;
 }

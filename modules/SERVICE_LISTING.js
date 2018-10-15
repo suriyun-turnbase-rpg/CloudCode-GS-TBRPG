@@ -153,7 +153,9 @@ function GetHelperList()
         {
             continue;
         }
-        list.push(GetSocialPlayer(playerId, targetPlayerId));
+        var socialPlayer = GetSocialPlayer(playerId, targetPlayerId);
+        if (socialPlayer)
+            list.push(socialPlayer);
         if (list.length >= maximum)
         {
             break;
@@ -179,7 +181,9 @@ function GetFriendList()
         {
             continue;
         }
-        list.push(GetSocialPlayer(playerId, targetPlayerId));
+        var socialPlayer = GetSocialPlayer(playerId, targetPlayerId);
+        if (socialPlayer)
+            list.push(socialPlayer);
         if (list.length >= maximum)
         {
             break;
@@ -205,7 +209,9 @@ function GetFriendRequestList()
         {
             continue;
         }
-        list.push(GetSocialPlayer(playerId, targetPlayerId));
+        var socialPlayer = GetSocialPlayer(playerId, targetPlayerId);
+        if (socialPlayer)
+            list.push(socialPlayer);
         if (list.length >= maximum)
         {
             break;
