@@ -53,6 +53,7 @@ function FriendRequest(targetPlayerId)
                 "id" : newId,
                 "playerId" : playerId,
                 "targetPlayerId" : targetPlayerId,
+                "timestamp" : new Date().getTime(),
             });
             newRequestEntry.persistor().persist().error();
         }
@@ -94,6 +95,7 @@ function FriendAccept(targetPlayerId)
             "id" : newId,
             "playerId" : playerId,
             "targetPlayerId" : targetPlayerId,
+            "timestamp" : new Date().getTime(),
         });
         newFriendEntry.persistor().persist().error();
     }
@@ -110,6 +112,7 @@ function FriendAccept(targetPlayerId)
             "id" : newId,
             "playerId" : targetPlayerId,
             "targetPlayerId" : playerId,
+            "timestamp" : new Date().getTime(),
         });
         newFriendEntry.persistor().persist().error();
     }
