@@ -855,8 +855,10 @@ function GetSocialPlayer(playerId, targetPlayerId)
 
 function GetPlayerIds()
 {
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
     var result = [];
-    var queryResult = API.queryItems(colPlayer);
+    var queryResult = API.queryItems(colPlayer, API.S("playerId").ne(playerId));
     var result = queryResult.cursor();
     while (result.hasNext())
     {
