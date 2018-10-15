@@ -33,20 +33,122 @@ var colPlayerFriendRequest = "playerFriendRequest";
 
 function FriendRequest(targetPlayerId)
 {
-
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    var friendQueryResult = API.queryItems(
+        colPlayerFriend, 
+        API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)));
+    var friendResult = friendQueryResult.cursor();
+    if (!friendResult.hasNext())
+    {
+        var requestQueryResult = API.queryItems(
+            colPlayerFriendRequest, 
+            API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)));
+        var requestResult = requestQueryResult.cursor();
+        if (!requestResult.hasNext())
+        {
+            var newId = GenerateUUID();
+            var newRequestEntry = API.createItem(colPlayerFriendRequest, newId);
+            newRequestEntry.setData({
+                "id" : newId,
+                "playerId" : playerId,
+                "targetPlayerId" : targetPlayerId,
+            });
+            newRequestEntry.persistor().persist().error();
+        }
+    }
 }
 
 function FriendAccept(targetPlayerId)
 {
-    
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    // Remove request
+    var requestQueryResult = API.queryItems(
+        colPlayerFriendRequest, 
+        API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)));
+    var requestResult = requestQueryResult.cursor();
+    if (requestResult.hasNext())
+    {
+        requestResult.next().delete();
+    }
+    // Remove request for both side
+    var requestQueryResultB = API.queryItems(
+        colPlayerFriendRequest, 
+        API.S("playerId").eq(targetPlayerId).and(API.S("targetPlayerId").eq(playerId)));
+    var requestResultB = requestQueryResultB.cursor();
+    if (requestResultB.hasNext())
+    {
+        requestResultB.next().delete();
+    }
+    // Add friend
+    var friendQueryResult = API.queryItems(
+        colPlayerFriend, 
+        API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)));
+    var friendResult = friendQueryResult.cursor();
+    if (!friendResult.hasNext())
+    {
+        var newId = GenerateUUID();
+        var newFriendEntry = API.createItem(colPlayerFriend, newId);
+        newFriendEntry.setData({
+            "id" : newId,
+            "playerId" : playerId,
+            "targetPlayerId" : targetPlayerId,
+        });
+        newFriendEntry.persistor().persist().error();
+    }
+    // Add friend for both side
+    var friendQueryResultB = API.queryItems(
+        colPlayerFriend, 
+        API.S("playerId").eq(targetPlayerId).and(API.S("targetPlayerId").eq(playerId)));
+    var friendResultB = friendQueryResultB.cursor();
+    if (!friendResultB.hasNext())
+    {
+        var newId = GenerateUUID();
+        var newFriendEntry = API.createItem(colPlayerFriend, newId);
+        newFriendEntry.setData({
+            "id" : newId,
+            "playerId" : targetPlayerId,
+            "targetPlayerId" : playerId,
+        });
+        newFriendEntry.persistor().persist().error();
+    }
 }
 
 function FriendDecline(targetPlayerId)
 {
-
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    // Remove request
+    var requestQueryResult = API.queryItems(
+        colPlayerFriendRequest, 
+        API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)));
+    var requestResult = requestQueryResult.cursor();
+    if (requestResult.hasNext())
+    {
+        requestResult.next().delete();
+    }
+    // Remove request for both side
+    var requestQueryResultB = API.queryItems(
+        colPlayerFriendRequest, 
+        API.S("playerId").eq(targetPlayerId).and(API.S("targetPlayerId").eq(playerId)));
+    var requestResultB = requestQueryResultB.cursor();
+    if (requestResultB.hasNext())
+    {
+        requestResultB.next().delete();
+    }
 }
 
 function FriendDelete(targetPlayerId)
 {
-
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    var requestQueryResult = API.queryItems(
+        colPlayerFriend, 
+        API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)));
+    var requestResult = requestQueryResult.cursor();
+    if (requestResult.hasNext())
+    {
+        requestResult.next().delete();
+    }
 }
