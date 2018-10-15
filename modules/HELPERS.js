@@ -34,6 +34,7 @@ var colPlayerFormation = "playerFormation";
 var colPlayerUnlockItem = "playerUnlockItem";
 var colPlayerClearStage = "playerClearStage";
 var colPlayerBattle = "playerBattle";
+var colPlayer = "player";
 
 function GenerateUUID()
 {
@@ -850,4 +851,17 @@ function GetSocialPlayer(playerId, targetPlayerId)
         };
     }
     return undefined;
+}
+
+function GetPlayerIds()
+{
+    var result = [];
+    var queryResult = API.queryItems(colPlayer);
+    var result = queryResult.cursor();
+    while (result.hasNext())
+    {
+        var entry = result.next();
+        result.push(entry.playerId);
+    }
+    return result;
 }

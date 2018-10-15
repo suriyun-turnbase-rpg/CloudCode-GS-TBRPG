@@ -144,7 +144,7 @@ function GetHelperList()
     var maximum = 25;
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
-    var playerIds = ShuffleArray(Spark.getPlayerIds());
+    var playerIds = ShuffleArray(GetPlayerIds());
     var list = [];
     for (var i = 0; i < playerIds.length; ++i)
     {

@@ -31,6 +31,8 @@ require("GAME_DATA_ENUM");
 require("GAME_DATA");
 require("HELPERS");
 
+var API = Spark.getGameDataService();
+var colPlayer = "player";
 var userId = Spark.getData().userId;
 var newPlayer = Spark.getData().newPlayer;
 
@@ -42,4 +44,17 @@ if (newPlayer)
 else
 {
     UpdateAllPlayerStamina(userId);
+}
+
+var playerQueryResult = API.queryItems(
+    colPlayer, 
+    API.S("playerId").eq(userId));
+var playerResult = playerQueryResult.cursor();
+if (!playerResult.hasNext())
+{
+    var newEntry = API.createItem(colPlayer, userId);
+    newEntry.setData({
+        "playerId" : userId
+    });
+    newEntry.persistor().persist().error();
 }
