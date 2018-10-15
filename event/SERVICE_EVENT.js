@@ -33,6 +33,7 @@ require("HELPERS");
 require("SERVICE_LISTING");
 require("SERVICE_BATTLE");
 require("SERVICE_ITEM");
+require("SERVICE_SOCIAL");
 
 var logger = Spark.getLog();
 var gsData = Spark.getData();
@@ -110,4 +111,32 @@ else if (target === "GetAvailableLootBoxList")
 else if (target === "OpenLootBox")
 {
     OpenLootBox(data.lootBoxDataId, data.packIndex);
+}
+else if (target === "GetHelperList")
+{
+    GetHelperList();
+}
+else if (target === "GetFriendList")
+{
+    GetFriendList();
+}
+else if (target === "GetFriendRequestList")
+{
+    GetFriendRequestList();
+}
+else if (target === "FriendRequest")
+{
+    FriendRequest(data.targetPlayerId);
+}
+else if (target === "FriendAccept")
+{
+    FriendAccept(data.targetPlayerId);
+}
+else if (target === "FriendDecline")
+{
+    FriendDecline(data.targetPlayerId);
+}
+else if (target === "FriendDelete")
+{
+    FriendDelete(data.targetPlayerId);
 }

@@ -34,6 +34,8 @@ var colPlayerFormation = "playerFormation";
 var colPlayerUnlockItem = "playerUnlockItem";
 var colPlayerClearStage = "playerClearStage";
 var colPlayerBattle = "playerBattle";
+var colPlayerFriend = "playerFriend";
+var colPlayerFriendRequest = "playerFriendRequest";
 
 function GetItemList()
 {
@@ -125,6 +127,47 @@ function GetClearStageList()
     var playerId = player.getPlayerId();
     var list = [];
     var queryResult = API.queryItems(colPlayerClearStage, API.S("playerId").eq(playerId), API.sort("timestamp", false));
+    if (!queryResult.error())
+    {
+        var result = queryResult.cursor();
+        while (result.hasNext())
+        {
+            var entry = result.next();
+            list.push(entry.getData());
+        }
+    }
+    Spark.setScriptData("list", list);
+}
+
+function GetHelperList()
+{
+    
+}
+
+function GetFriendList()
+{
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    var list = [];
+    var queryResult = API.queryItems(colPlayerFriend, API.S("playerId").eq(playerId), API.sort("timestamp", false));
+    if (!queryResult.error())
+    {
+        var result = queryResult.cursor();
+        while (result.hasNext())
+        {
+            var entry = result.next();
+            list.push(entry.getData());
+        }
+    }
+    Spark.setScriptData("list", list);
+}
+
+function GetFriendRequestList()
+{
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    var list = [];
+    var queryResult = API.queryItems(colPlayerFriendRequest, API.S("playerId").eq(playerId), API.sort("timestamp", false));
     if (!queryResult.error())
     {
         var result = queryResult.cursor();
