@@ -857,13 +857,13 @@ function GetPlayerIds()
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
-    var result = [];
+    var playerIds = [];
     var queryResult = API.queryItems(colPlayer, API.S("playerId").ne(playerId));
     var result = queryResult.cursor();
     while (result.hasNext())
     {
         var entry = result.next();
-        result.push(entry.playerId);
+        playerIds.push(entry.playerId);
     }
-    return result;
+    return playerIds;
 }
