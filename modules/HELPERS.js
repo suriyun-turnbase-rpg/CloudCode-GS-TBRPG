@@ -790,10 +790,10 @@ function GetFormationCharacter(playerId, playerSelectedFormation)
     {
         var characterId = characterIds[i];
         var characterQueryResult = API.getItem(colPlayerItem, characterId);
-        var characterEntry = characterQueryResult.document();
-        if (characterEntry)
+        var characterData = characterQueryResult.document().getData();
+        if (characterData)
         {
-            characters.push(characterEntry);
+            characters.push(characterData);
         }
     }
     return characters;
@@ -801,7 +801,7 @@ function GetFormationCharacter(playerId, playerSelectedFormation)
 
 function GetLeaderCharacter(playerId, playerSelectedFormation)
 {
-    var characterEntry = undefined;
+    var characterData = undefined;
     var formationsQueryResult = API.queryItems(
         colPlayerFormation, 
         API.S("playerId").eq(playerId));
@@ -813,22 +813,22 @@ function GetLeaderCharacter(playerId, playerSelectedFormation)
         if (formation.dataId == playerSelectedFormation && formation.itemId)
         {
             var characterQueryResult = API.getItem(colPlayerItem, formation.itemId);
-            var currentCharacterEntry = characterQueryResult.document();
-            if (currentCharacterEntry)
+            var currentCharacterData = characterQueryResult.document().getData();
+            if (currentCharacterData)
             {
-                if (!characterEntry)
+                if (!characterData)
                 {
                     // Set first found character, will return it when leader not found
-                    characterEntry = currentCharacterEntry;
+                    characterData = currentCharacterData;
                 }
                 if (formation.isLeader)
                 {
-                    return characterEntry;
+                    return characterData;
                 }
             }
         }
     }
-    return characterEntry;
+    return characterData;
 }
 
 function GetSocialPlayer(playerId, targetPlayerId)
