@@ -500,9 +500,17 @@ function DecreasePlayerStamina(playerId, staminaType, decreaseAmount)
     if (!staminaTable)
         return;
     
+    var player = Spark.loadPlayer(playerId);
+    var exp = player.getScriptData("exp");
     var stamina = GetStamina(playerId, staminaTable.id);
+    var currentLevel = CalculatePlayerLevel(exp);
+    var maxLevel = gameDatabase.playerMaxLevel;
+    var maxAmountTable = staminaTable.maxAmountTable;
+    var maxStamina = CalculateIntAttribute(currentLevel, maxLevel, maxAmountTable.minValue, maxAmountTable.maxValue, maxAmountTable.growth);
     if (stamina.amount >= decreaseAmount)
     {
+        if (stamina.amount >= maxStamina && stamina.amount - decreaseAmount < maxStamina)
+            stamina.recoveredTime = Date.now();
         stamina.amount -= decreaseAmount;
         var doc = API.getItem(colPlayerStamina, stamina.id).document();
         if (doc)
@@ -550,15 +558,18 @@ function UpdatePlayerStamina(playerId, staminaType)
                 break;
         }
         var recoveryAmount = Math.floor((diffTimeInMillisecond / devideAmount) / staminaTable.recoverDuration);
-        stamina.amount += recoveryAmount;
-        if (stamina.amount > maxStamina)
-            stamina.amount = maxStamina;
-        stamina.recoveredTime = currentTimeInMillisecond;
-        var doc = API.getItem(colPlayerStamina, stamina.id).document();
-        if (doc)
+        if (recoveryAmount > 0)
         {
-            doc.setData(stamina);
-            doc.persistor().persist().error();
+            stamina.amount += recoveryAmount;
+            if (stamina.amount > maxStamina)
+                stamina.amount = maxStamina;
+            stamina.recoveredTime = currentTimeInMillisecond;
+            var doc = API.getItem(colPlayerStamina, stamina.id).document();
+            if (doc)
+            {
+                doc.setData(stamina);
+                doc.persistor().persist().error();
+            }
         }
     }
 }
