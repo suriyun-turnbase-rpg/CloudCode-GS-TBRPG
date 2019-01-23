@@ -34,7 +34,7 @@ require("HELPERS");
 var API = Spark.getGameDataService();
 var player = Spark.getPlayer();
 var playerId = player.getPlayerId();
-var iapPackageId
+var iapPackageId = Spark.getData().iapPackageDataId;
 var iapPackage = gameDatabase.iapPackages[iapPackageId];
 if (!iapPackage)
 {
