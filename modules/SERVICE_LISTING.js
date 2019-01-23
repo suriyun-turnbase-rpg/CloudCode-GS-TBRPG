@@ -219,3 +219,8 @@ function GetFriendRequestList()
     }
     Spark.setScriptData("list", list);
 }
+
+function ServiceTime()
+{
+    Spark.setScriptData("serviceTime", Date.now());
+}
