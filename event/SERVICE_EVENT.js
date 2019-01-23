@@ -140,3 +140,6 @@ else if (target === "FriendDelete")
 {
     FriendDelete(data.targetPlayerId);
 }
+
+// Set service time, it will be used at client side to set time offset stuffs
+Spark.setScriptData("serviceTime", Date.now());
