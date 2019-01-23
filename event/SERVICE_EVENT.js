@@ -108,6 +108,10 @@ else if (target === "GetAvailableLootBoxList")
 {
     GetAvailableLootBoxList();
 }
+else if (target === "GetAvailableIapPackageList")
+{
+    GetAvailableIapPackageList();
+}
 else if (target === "OpenLootBox")
 {
     OpenLootBox(data.lootBoxDataId, data.packIndex);

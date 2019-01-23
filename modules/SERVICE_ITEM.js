@@ -478,6 +478,16 @@ function GetAvailableLootBoxList()
     Spark.setScriptData("list", list);
 }
 
+function GetAvailableIapPackageList()
+{
+    var list = [];
+    for (var key in gameDatabase.iapPackages)
+    {
+        list.push(key);
+    }
+    Spark.setScriptData("list", list);
+}
+
 function OpenLootBox(lootBoxDataId, packIndex)
 {
     var player = Spark.getPlayer();
