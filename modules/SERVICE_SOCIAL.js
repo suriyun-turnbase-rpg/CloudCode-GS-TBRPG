@@ -155,3 +155,8 @@ function FriendDelete(targetPlayerId)
         requestResult.next().delete();
     }
 }
+
+function FindUser(displayName)
+{
+    
+}

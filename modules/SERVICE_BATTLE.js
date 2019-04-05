@@ -41,7 +41,7 @@ function StartStage(stageDataId)
     var playerId = player.getPlayerId();
     var queryResult = API.queryItems(
         colPlayerBattle, 
-        API.S("playerId").eq(playerId).and(API.N("battleResult").eq(ENUM_BATTLE_RESULT_NONE)),
+        API.S("playerId").eq(playerId).and(API.N("battleResult").eq(ENUM_BATTLE_RESULT_NONE)).and(API.N("battleType").eq(ENUM_BATTLE_TYPE_STAGE)),
         API.sort("id", false));
     var result = queryResult.cursor();
     while (result.hasNext())
@@ -231,7 +231,7 @@ function ReviveCharacters()
     }
 }
 
-function SelectFormation(formationName)
+function SelectFormation(formationName, formationType)
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
@@ -242,7 +242,14 @@ function SelectFormation(formationName)
     }
     else
     {
-        player.setScriptData("selectedFormation", formationName);
+        if (formationType === ENUM_FORMATION_TYPE_STAGE)
+        {
+            player.setScriptData("selectedFormation", formationName);
+        }
+        else if (formationType === ENUM_FORMATION_TYPE_ARENA)
+        {
+            player.setScriptData("selectedArenaFormation", formationName);
+        }
         Spark.setScriptData("player", GetPlayer(playerId));
     }
 }

@@ -528,7 +528,10 @@ function UpdatePlayerStamina(playerId, staminaType)
 {
     var staminaTable = gameDatabase.staminas[staminaType];
     if (!staminaTable)
+    {
+        Spark.getLog().error("Stamina not found: " + staminaType);
         return;
+    }
     
     var player = Spark.loadPlayer(playerId);
     var exp = player.getScriptData("exp");
@@ -577,6 +580,7 @@ function UpdatePlayerStamina(playerId, staminaType)
 function UpdateAllPlayerStamina(playerId)
 {
     UpdatePlayerStamina(playerId, "STAGE");
+    UpdatePlayerStamina(playerId, "ARENA");
 }
 
 function GetCurrency(playerId, dataId)
@@ -611,7 +615,16 @@ function GetStamina(playerId, dataId)
 function GetPlayer(playerId)
 {
     var player = Spark.loadPlayer(playerId);
-    return { "id" : playerId, "profileName" : player.getDisplayName(), "exp" : player.getScriptData("exp"), "selectedFormation" : player.getScriptData("selectedFormation") };
+    return {
+        "id" : playerId,
+        "profileName" : player.getDisplayName(),
+        "exp" : player.getScriptData("exp"),
+        "selectedFormation" : player.getScriptData("selectedFormation"),
+        "selectedArenaFormation" : player.getScriptData("selectedArenaFormation"),
+        "arenaScore" : player.getScriptData("arenaScore"),
+        "highestArenaRank" : player.getScriptData("highestArenaRank"),
+        "highestArenaRankCurrentSeason" : player.getScriptData("highestArenaRankCurrentSeason")
+    };
 }
 
 function AddItems(playerId, dataId, amount)
@@ -840,6 +853,29 @@ function GetLeaderCharacter(playerId, playerSelectedFormation)
         }
     }
     return characterData;
+}
+
+function CalculateArenaRankLevel(arenaScore)
+{
+    var level = 0;
+    var count = gameDatabase.arenaRanks.length;
+    for (var i = 0; i < count; ++i)
+    {
+        var arenaRank = gameDatabase.arenaRanks[i];
+        if (arenaScore < arenaRank.scoreToRankUp)
+            break;
+        level++;
+    }
+    return level;
+}
+
+function GetArenaRank(arenaScore)
+{
+    
+    var level = CalculateArenaRankLevel(arenaScore);
+    if (level >= gameDatabase.arenaRanks.length)
+        level = gameDatabase.arenaRanks.length - 1;
+    return level >= 0 ? gameDatabase.arenaRanks[level] : undefined;
 }
 
 function GetSocialPlayer(playerId, targetPlayerId)

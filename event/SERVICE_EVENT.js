@@ -34,6 +34,7 @@ require("SERVICE_LISTING");
 require("SERVICE_BATTLE");
 require("SERVICE_ITEM");
 require("SERVICE_SOCIAL");
+require("SERVICE_ARENA");
 
 var logger = Spark.getLog();
 var gsData = Spark.getData();
@@ -78,7 +79,7 @@ else if (target === "ReviveCharacters")
 }
 else if (target === "SelectFormation")
 {
-    SelectFormation(data.formationName);
+    SelectFormation(data.formationName, data.formationType);
 }
 else if (target === "SetFormation")
 {
@@ -147,4 +148,20 @@ else if (target === "FriendDelete")
 else if (target === "ServiceTime")
 {
     ServiceTime();
+}
+else if (target === "FindUser")
+{
+    FindUser(data.displayName);
+}
+else if (target === "GetOpponentList")
+{
+    GetOpponentList();
+}
+else if (target === "StartDuel")
+{
+    StartDuel(data.targetPlayerId);
+}
+else if (target === "FinishDuel")
+{
+    FinishDuel(data.session, data.battleResult, data.deadCharacters);
 }

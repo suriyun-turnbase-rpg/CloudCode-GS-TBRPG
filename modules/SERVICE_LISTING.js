@@ -220,6 +220,31 @@ function GetFriendRequestList()
     Spark.setScriptData("list", list);
 }
 
+function GetOpponentList()
+{
+    var maximum = 25;
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    var playerIds = ShuffleArray(GetPlayerIds());
+    var list = [];
+    for (var i = 0; i < playerIds.length; ++i)
+    {
+        var targetPlayerId = playerIds[i];
+        if (playerId === targetPlayerId)
+        {
+            continue;
+        }
+        var socialPlayer = GetSocialPlayer(playerId, targetPlayerId);
+        if (socialPlayer)
+            list.push(socialPlayer);
+        if (list.length >= maximum)
+        {
+            break;
+        }
+    }
+    Spark.setScriptData("list", list);
+}
+
 function ServiceTime()
 {
     Spark.setScriptData("serviceTime", Date.now());
