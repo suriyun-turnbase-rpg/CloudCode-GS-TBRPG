@@ -444,7 +444,7 @@ function SetNewPlayerData(playerId)
             var countUpdateItems = updateItems.length;
             for (var j = 0; j < countCreateItems; ++j)
             {
-                var createItem = addItemsResult.createItems[j];
+                var createItem = createItems[j];
                 var newItemEntry = API.createItem(colPlayerItem, createItem.id);
                 newItemEntry.setData(createItem);
                 newItemEntry.persistor().persist().error();
@@ -452,7 +452,7 @@ function SetNewPlayerData(playerId)
             }
             for (var j = 0; j < countUpdateItems; ++j)
             {
-                var updateItem = addItemsResult.updateItem[j];
+                var updateItem = updateItems[j];
                 var updateItemResult = API.getItem(colPlayerItem, updateItem.id);
                 var updateItemEntry = updateItemResult.document();
                 updateItemEntry.setData(updateItem);
@@ -475,7 +475,7 @@ function SetNewPlayerData(playerId)
             var countUpdateItems = updateItems.length;
             for (var j = 0; j < countCreateItems; ++j)
             {
-                var createItem = addItemsResult.createItems[j];
+                var createItem = createItems[j];
                 var newItemEntry = API.createItem(colPlayerItem, createItem.id);
                 newItemEntry.setData(createItem);
                 newItemEntry.persistor().persist().error();
@@ -484,7 +484,7 @@ function SetNewPlayerData(playerId)
             }
             for (var j = 0; j < countUpdateItems; ++j)
             {
-                var updateItem = addItemsResult.updateItem[j];
+                var updateItem = updateItems[j];
                 var updateItemResult = API.getItem(colPlayerItem, updateItem.id);
                 var updateItemEntry = updateItemResult.document();
                 updateItemEntry.setData(updateItem);
