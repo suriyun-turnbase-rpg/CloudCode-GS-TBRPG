@@ -176,7 +176,7 @@ function FinishDuel(session, battleResult, deadCharacters)
                         }
                         for (var j = 0; j < countUpdateItems; ++j)
                         {
-                            var updateItem = addItemsResult.updateItem[j];
+                            var updateItem = addItemsResult.updateItems[j];
                             var updateItemResult = API.getItem(colPlayerItem, updateItem.id);
                             var updateItemEntry = updateItemResult.document();
                             updateItemEntry.setData(updateItem);
