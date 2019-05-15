@@ -36,6 +36,12 @@ var colPlayerClearStage = "playerClearStage";
 var colPlayerBattle = "playerBattle";
 var colPlayer = "player";
 
+
+function GetTimestamp()
+{
+    return Math.round((new Date()).getTime() / 1000);
+}
+
 function GenerateUUID()
 {
     var d = new Date().getTime();
@@ -510,7 +516,7 @@ function DecreasePlayerStamina(playerId, staminaType, decreaseAmount)
     if (stamina.amount >= decreaseAmount)
     {
         if (stamina.amount >= maxStamina && stamina.amount - decreaseAmount < maxStamina)
-            stamina.recoveredTime = Date.now();
+            stamina.recoveredTime = GetTimestamp();
         stamina.amount -= decreaseAmount;
         var doc = API.getItem(colPlayerStamina, stamina.id).document();
         if (doc)
@@ -542,31 +548,31 @@ function UpdatePlayerStamina(playerId, staminaType)
     var maxStamina = CalculateIntAttribute(currentLevel, maxLevel, maxAmountTable.minValue, maxAmountTable.maxValue, maxAmountTable.growth);
     if (stamina.amount < maxStamina)
     {
-        var currentTimeInMillisecond = Date.now();
-        var diffTimeInMillisecond = currentTimeInMillisecond - stamina.recoveredTime;
+        var currentTimeInSecond = GetTimestamp();
+        var diffTimeInSecond = currentTimeInSecond - stamina.recoveredTime;
         var devideAmount = 1;
         switch (staminaTable.recoverUnit)
         {
             case ENUM_STAMINA_UNIT_DAYS:
-                devideAmount = 1000 * 60 * 60 * 24;
+                devideAmount = 60 * 60 * 24;
                 break;
             case ENUM_STAMINA_UNIT_HOURS:
-                devideAmount = 1000 * 60 * 60;
+                devideAmount = 60 * 60;
                 break;
             case ENUM_STAMINA_UNIT_MINUTES:
-                devideAmount = 1000 * 60;
+                devideAmount = 60;
                 break;
             case ENUM_STAMINA_UNIT_SECONDS:
-                devideAmount = 1000;
+                devideAmount = 1;
                 break;
         }
-        var recoveryAmount = Math.floor((diffTimeInMillisecond / devideAmount) / staminaTable.recoverDuration);
+        var recoveryAmount = Math.floor((diffTimeInSecond / devideAmount) / staminaTable.recoverDuration);
         if (recoveryAmount > 0)
         {
             stamina.amount += recoveryAmount;
             if (stamina.amount > maxStamina)
                 stamina.amount = maxStamina;
-            stamina.recoveredTime = currentTimeInMillisecond;
+            stamina.recoveredTime = currentTimeInSecond;
             var doc = API.getItem(colPlayerStamina, stamina.id).document();
             if (doc)
             {

@@ -247,5 +247,5 @@ function GetOpponentList()
 
 function ServiceTime()
 {
-    Spark.setScriptData("serviceTime", Date.now());
+    Spark.setScriptData("serviceTime", GetTimestamp());
 }
