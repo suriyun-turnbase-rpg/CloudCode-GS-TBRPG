@@ -47,7 +47,7 @@ function FilterPlayerAchievements(achievements, playerAchievements)
     var result = {};
     for (var i = 0; i < playerAchievements.length; ++i) {
     var playerAchievement = playerAchievements[i];
-        if (achievements.hasOwnProperty(playerAchievement.DataId))
+        if (achievements.hasOwnProperty(playerAchievement.dataId))
             result[playerAchievement.DataId] = playerAchievement;
     }
     return result;
@@ -55,22 +55,22 @@ function FilterPlayerAchievements(achievements, playerAchievements)
 
 function UpdateTotalClearStage(playerId, playerAchievements, playerClearStages)
 {
-    var achievements = FilterAchievements(AchievementType.TotalClearStage);
+    var achievements = FilterAchievements(ENUM_TOTAL_CLEAR_STAGE);
     var playerAchievementDict = FilterPlayerAchievements(achievements, playerAchievements);
     for (var achievementId in achievements)
     {
         if (!playerAchievementDict.hasOwnProperty(achievementId))
         {
-            var newPlayerAchievement = new PlayerAchievement();
+            var newPlayerAchievement = {};
             newPlayerAchievement.playerId = playerId;
             newPlayerAchievement.dataId = achievementId;
-            newPlayerAchievement.progress = playerClearStages.Count;
+            newPlayerAchievement.progress = playerClearStages.length;
             createPlayerAchievements.Add(newPlayerAchievement);
         }
         else
         {
             var oldPlayerAchievement = playerAchievementDict[achievementId];
-            oldPlayerAchievement.progress = playerClearStages.Count;
+            oldPlayerAchievement.progress = playerClearStages.length;
             updatePlayerAchievements.Add(oldPlayerAchievement);
         }
     }
@@ -78,18 +78,18 @@ function UpdateTotalClearStage(playerId, playerAchievements, playerClearStages)
 
 function UpdateTotalClearStageRating(playerId, playerAchievements, playerClearStages)
 {
-    var achievements = FilterAchievements(AchievementType.TotalClearStageRating);
+    var achievements = FilterAchievements(ENUM_TOTAL_CLEAR_STAGE_RATING);
     var playerAchievementDict = FilterPlayerAchievements(achievements, playerAchievements);
     var countRating = 0;
     for (var i = 0; i < playerClearStages.length; ++i)
     {
-        countRating += playerClearStages[i].BestRating;
+        countRating += playerClearStages[i].bestRating;
     }
     for (var achievementId in achievements)
     {
         if (!playerAchievementDict.hasOwnProperty(achievementId))
         {
-            var newPlayerAchievement = new PlayerAchievement();
+            var newPlayerAchievement = {};
             newPlayerAchievement.playerId = playerId;
             newPlayerAchievement.dataId = achievementId;
             newPlayerAchievement.progress = countRating;
@@ -106,42 +106,42 @@ function UpdateTotalClearStageRating(playerId, playerAchievements, playerClearSt
 
 function UpdateCountLevelUpCharacter(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, AchievementType.CountLevelUpCharacter);
+    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_LEVEL_UP_CHARACTER);
 }
 
 function UpdateCountLevelUpEquipment(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, AchievementType.CountLevelUpEquipment);
+    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_LEVEL_UP_EQUIPMENT);
 }
 
 function UpdateCountEvolveCharacter(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, AchievementType.CountEvolveCharacter);
+    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_EVOLVE_CHARACTER);
 }
 
 function UpdateCountEvolveEquipment(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, AchievementType.CountEvolveEquipment);
+    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_EVOLVE_EQUIPMENT);
 }
 
 function UpdateCountRevive(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, AchievementType.CountRevive);
+    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_REVIVE);
 }
 
 function UpdateCountUseHelper(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, AchievementType.CountUseHelper);
+    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_USE_HELPER);
 }
 
 function UpdateCountWinStage(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, AchievementType.CountWinStage);
+    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_WIN_STAGE);
 }
 
 function UpdateCountWinDuel(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, AchievementType.CountWinDuel);
+    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_WIN_DUEL);
 }
 
 function UpdateCountingProgress(playerId, playerAchievements, type)
