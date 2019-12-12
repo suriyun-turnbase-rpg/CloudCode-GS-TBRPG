@@ -41,7 +41,7 @@ var gsData = Spark.getData();
 var target = gsData.TARGET;
 var data = gsData.DATA;
 
-if (target === "GetItemList")
+if (target === "GetAchievementList")
 {
     GetAchievementList();
 }
