@@ -764,21 +764,88 @@ function HelperUnlockItem(playerId, dataId)
     return unlockItem;
 }
 
-function HelperClearStage(playerId, dataId, rating)
+function HelperClearStage(apiResult, player, playerId, stage, rating)
 {
     var clearStage;
-    var clearStageDoc = API.getItem(colPlayerClearStage, GeneratePlayerClearStageId(playerId, dataId)).document();
+    var clearStageDoc = API.getItem(colPlayerClearStage, GeneratePlayerClearStageId(playerId, stage.id)).document();
     if (clearStageDoc)
     {
         clearStage = clearStageDoc.getData();
     }
     if (!clearStage)
     {
-        clearStage = CreatePlayerClearStage(playerId, dataId);
+        clearStage = CreatePlayerClearStage(playerId, stage.id);
         clearStage.bestRating = rating;
         var newEntry = API.createItem(colPlayerClearStage, clearStage.id);
         newEntry.setData(clearStage);
         newEntry.persistor().persist().error();
+        // First clear rewards
+        var updateCurrencies = [];
+        var createItems = apiResult.createItems;
+        var updateItems = apiResult.updateItems;
+        var firstClearRewardPlayerExp = stage.firstClearRewardPlayerExp;
+        var firstClearRewardSoftCurrency = stage.firstClearRewardSoftCurrency;
+        var firstClearRewardHardCurrency = stage.firstClearRewardHardCurrency;
+        var firstClearRewardItems = [];
+        // Player exp
+        var playerExp = player.getScriptData("exp");
+        playerExp += firstClearRewardPlayerExp;
+        player.setScriptData("exp", playerExp);
+        // Soft currency
+        player.credit(gameDatabase.currencies.SOFT_CURRENCY, firstClearRewardSoftCurrency, "First Pass Stage [" + stage.id + "]");
+        var softCurrency = GetCurrency(playerId, gameDatabase.currencies.SOFT_CURRENCY);
+        updateCurrencies.push(softCurrency);
+        // Hard currency
+        player.credit(gameDatabase.currencies.HARD_CURRENCY, firstClearRewardHardCurrency, "First Pass Stage [" + stage.id + "]");
+        var hardCurrency = GetCurrency(playerId, gameDatabase.currencies.HARD_CURRENCY);
+        updateCurrencies.push(hardCurrency);
+        // Items
+        var countRewardItems = stage.firstClearRewardItems.length;
+        for (var i = 0; i < countRewardItems; ++i)
+        {
+            var rewardItem = stage.firstClearRewardItems[i];
+            if (!rewardItem || !rewardItem.id)
+            {
+                continue;
+            }
+                
+            var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
+            if (addItemsResult.success)
+            {
+                var countCreateItems = addItemsResult.createItems.length;
+                var countUpdateItems = addItemsResult.updateItems.length;
+                for (var j = 0; j < countCreateItems; ++j)
+                {
+                    var createItem = addItemsResult.createItems[j];
+                    var newItemId = createItem.id;
+                    var newItemEntry = API.createItem(colPlayerItem, newItemId);
+                    newItemEntry.setData(createItem);
+                    newItemEntry.persistor().persist().error();
+                    HelperUnlockItem(playerId, createItem.dataId);
+                    firstClearRewardItems.push(createItem);
+                    createItems.push(createItem);
+                }
+                for (var j = 0; j < countUpdateItems; ++j)
+                {
+                    var updateItem = addItemsResult.updateItems[j];
+                    var updateItemResult = API.getItem(colPlayerItem, updateItem.id);
+                    var updateItemEntry = updateItemResult.document();
+                    updateItemEntry.setData(updateItem);
+                    updateItemEntry.persistor().persist().error();
+                    firstClearRewardItems.push(updateItem);
+                    updateItems.push(updateItem);
+                }
+            }
+            // End add item condition
+        }
+        // End reward items loop
+        apiResult.updateCurrencies = updateCurrencies;
+        apiResult.createItems = createItems;
+        apiResult.updateItems = updateItems;
+        apiResult.firstClearRewardPlayerExp = firstClearRewardPlayerExp;
+        apiResult.firstClearRewardSoftCurrency = firstClearRewardSoftCurrency;
+        apiResult.firstClearRewardHardCurrency = firstClearRewardHardCurrency;
+        apiResult.firstClearRewardItems = firstClearRewardItems;
     }
     else
     {
@@ -790,7 +857,8 @@ function HelperClearStage(playerId, dataId, rating)
             clearStageDoc.persistor().persist().error();
         }
     }
-    return clearStage;
+    apiResult.clearStage = clearStage;
+    return apiResult;
 }
 
 function GetFormationCharacterIds(playerId, playerSelectedFormation)

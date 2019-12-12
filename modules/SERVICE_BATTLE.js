@@ -96,16 +96,31 @@ function FinishStage(session, battleResult, deadCharacters)
         else
         {
             // Prepare results
-            var rewardItems = [];
-            var createItems = [];
-            var updateItems = [];
-            var deleteItemIds = [];
-            var updateCurrencies = [];
-            var rewardPlayerExp = 0;
-            var rewardCharacterExp = 0;
-            var rewardSoftCurrency = 0;
-            var rating = 0;
-            var clearedStage = {};
+            var apiResult = {
+                rewardItems: [],
+                createItems: [],
+                updateItems: [],
+                deleteItemIds: [],
+                updateCurrencies: [],
+                rewardPlayerExp: 0,
+                rewardCharacterExp: 0,
+                rating: 0,
+                clearStage: {},
+                firstClearRewardPlayerExp: 0,
+                firstClearRewardSoftCurrency: 0,
+                firstClearRewardHardCurrency: 0,
+                firstClearRewardItems: []
+            };
+            var rewardItems = apiResult.rewardItems;
+            var createItems = apiResult.createItems;
+            var updateItems = apiResult.updateItems
+            var deleteItemIds = apiResult.deleteItemIds;
+            var updateCurrencies = apiResult.updateCurrencies;
+            var rewardPlayerExp = apiResult.rewardPlayerExp;
+            var rewardCharacterExp = apiResult.rewardCharacterExp;
+            var rewardSoftCurrency = apiResult.rewardSoftCurrency;
+            var rating = apiResult.rating;
+            var clearStage = apiResult.clearStage;
             // Set battle session
             battle.battleResult = battleResult;
             if (battleResult == ENUM_BATTLE_RESULT_WIN)
@@ -194,18 +209,32 @@ function FinishStage(session, battleResult, deadCharacters)
                 }
                 // End reward items loop
                 
-                clearedStage = HelperClearStage(playerId, stage.id, rating);
+                apiResult.rewardItems = rewardItems;
+                apiResult.createItems = createItems;
+                apiResult.updateItems = updateItems;
+                apiResult.deleteItemIds = deleteItemIds;
+                apiResult.updateCurrencies = updateCurrencies;
+                apiResult.rewardPlayerExp = rewardPlayerExp;
+                apiResult.rewardCharacterExp = rewardCharacterExp;
+                apiResult.rewardSoftCurrency = rewardSoftCurrency;
+                apiResult.rating = rating;
+                apiResult.clearStage = clearStage;
+                apiResult = HelperClearStage(apiResult, player, playerId, stage, rating);
             }
-            Spark.setScriptData("rewardItems", rewardItems);
-            Spark.setScriptData("createItems", createItems);
-            Spark.setScriptData("updateItems", updateItems);
-            Spark.setScriptData("deleteItemIds", deleteItemIds);
-            Spark.setScriptData("updateCurrencies", updateCurrencies);
-            Spark.setScriptData("rewardPlayerExp", rewardPlayerExp);
-            Spark.setScriptData("rewardCharacterExp", rewardCharacterExp);
-            Spark.setScriptData("rewardSoftCurrency", rewardSoftCurrency);
-            Spark.setScriptData("rating", rating);
-            Spark.setScriptData("clearStage", clearedStage);
+            Spark.setScriptData("rewardItems", apiResult.rewardItems);
+            Spark.setScriptData("createItems", apiResult.createItems);
+            Spark.setScriptData("updateItems", apiResult.updateItems);
+            Spark.setScriptData("deleteItemIds", apiResult.deleteItemIds);
+            Spark.setScriptData("updateCurrencies", apiResult.updateCurrencies);
+            Spark.setScriptData("rewardPlayerExp", apiResult.rewardPlayerExp);
+            Spark.setScriptData("rewardCharacterExp", apiResult.rewardCharacterExp);
+            Spark.setScriptData("rewardSoftCurrency", apiResult.rewardSoftCurrency);
+            Spark.setScriptData("rating", apiResult.rating);
+            Spark.setScriptData("clearStage", apiResult.clearStage);
+            Spark.setScriptData("firstClearRewardPlayerExp", apiResult.firstClearRewardPlayerExp);
+            Spark.setScriptData("firstClearRewardSoftCurrency", apiResult.firstClearRewardSoftCurrency);
+            Spark.setScriptData("firstClearRewardHardCurrency", apiResult.firstClearRewardHardCurrency);
+            Spark.setScriptData("firstClearRewardItems", apiResult.firstClearRewardItems);
             Spark.setScriptData("player", GetPlayer(playerId));
         }
     }
