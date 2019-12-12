@@ -120,7 +120,6 @@ function FinishStage(session, battleResult, deadCharacters)
             var rewardCharacterExp = apiResult.rewardCharacterExp;
             var rewardSoftCurrency = apiResult.rewardSoftCurrency;
             var rating = apiResult.rating;
-            var clearStage = apiResult.clearStage;
             // Set battle session
             battle.battleResult = battleResult;
             if (battleResult == ENUM_BATTLE_RESULT_WIN)
@@ -218,7 +217,6 @@ function FinishStage(session, battleResult, deadCharacters)
                 apiResult.rewardCharacterExp = rewardCharacterExp;
                 apiResult.rewardSoftCurrency = rewardSoftCurrency;
                 apiResult.rating = rating;
-                apiResult.clearStage = clearStage;
                 apiResult = HelperClearStage(apiResult, player, playerId, stage, rating);
             }
             Spark.setScriptData("rewardItems", apiResult.rewardItems);
