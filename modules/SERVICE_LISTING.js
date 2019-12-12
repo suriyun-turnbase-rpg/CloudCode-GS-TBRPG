@@ -28,6 +28,7 @@
 // ====================================================================================================
 
 var API = Spark.getGameDataService();
+var colPlayerAchievement = "playerAchievement";
 var colPlayerItem = "playerItem";
 var colPlayerStamina = "playerStamina";
 var colPlayerFormation = "playerFormation";
@@ -36,6 +37,24 @@ var colPlayerClearStage = "playerClearStage";
 var colPlayerBattle = "playerBattle";
 var colPlayerFriend = "playerFriend";
 var colPlayerFriendRequest = "playerFriendRequest";
+
+function GetAchievementList()
+{
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    var list = [];
+    var queryResult = API.queryItems(colPlayerAchievement, API.S("playerId").eq(playerId), API.sort("timestamp", false));
+    if (!queryResult.error())
+    {
+        var result = queryResult.cursor();
+        while (result.hasNext())
+        {
+            var entry = result.next();
+            list.push(entry.getData());
+        }
+    }
+    Spark.setScriptData("list", list);
+}
 
 function GetItemList()
 {

@@ -43,6 +43,10 @@ var data = gsData.DATA;
 
 if (target === "GetItemList")
 {
+    GetAchievementList();
+}
+else if (target === "GetItemList")
+{
     GetItemList();
 }
 else if (target === "GetCurrencyList")
