@@ -39,6 +39,7 @@ function FilterAchievements(type)
             achievements[achievementId] = achievement;
         }
     }
+    return achievements;
 }
 
 function FilterPlayerAchievements(achievements, playerAchievements)
