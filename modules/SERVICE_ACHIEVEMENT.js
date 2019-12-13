@@ -60,7 +60,7 @@ function UpdateTotalClearStage(playerId, playerAchievements, playerClearStages)
     {
         if (!playerAchievementDict.hasOwnProperty(achievementId))
         {
-            var newPlayerAchievement = CreatePlayerUnlockItem(playerId, achievementId);
+            var newPlayerAchievement = CreatePlayerAchievement(playerId, achievementId);
             newPlayerAchievement.progress = playerClearStages.length;
             createPlayerAchievements.push(newPlayerAchievement);
         }
@@ -92,7 +92,7 @@ function UpdateTotalClearStageRating(playerId, playerAchievements, playerClearSt
     {
         if (!playerAchievementDict.hasOwnProperty(achievementId))
         {
-            var newPlayerAchievement = CreatePlayerUnlockItem(playerId, achievementId);
+            var newPlayerAchievement = CreatePlayerAchievement(playerId, achievementId);
             newPlayerAchievement.progress = countRating;
             createPlayerAchievements.push(newPlayerAchievement);
         }
@@ -159,7 +159,7 @@ function UpdateCountingProgress(playerId, playerAchievements, type)
     {
         if (!playerAchievementDict.hasOwnProperty(achievementId))
         {
-            var newPlayerAchievement = CreatePlayerUnlockItem(playerId, achievementId);
+            var newPlayerAchievement = CreatePlayerAchievement(playerId, achievementId);
             newPlayerAchievement.progress = 1;
             createPlayerAchievements.push(newPlayerAchievement);
         }
