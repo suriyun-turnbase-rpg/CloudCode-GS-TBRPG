@@ -42,6 +42,11 @@ function GetAchievementList()
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
+    Spark.setScriptData("list", GetAchievementListInternal(playerId));
+}
+
+function GetAchievementListInternal(playerId)
+{
     var list = [];
     var queryResult = API.queryItems(colPlayerAchievement, API.S("playerId").eq(playerId), API.sort("timestamp", false));
     if (!queryResult.error())
@@ -53,13 +58,18 @@ function GetAchievementList()
             list.push(entry.getData());
         }
     }
-    Spark.setScriptData("list", list);
+    return list;
 }
 
 function GetItemList()
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
+    Spark.setScriptData("list", GetItemListInternal(playerId));
+}
+
+function GetItemListInternal(playerId)
+{
     var list = [];
     var queryResult = API.queryItems(colPlayerItem, API.S("playerId").eq(playerId), API.sort("timestamp", false));
     if (!queryResult.error())
@@ -71,25 +81,35 @@ function GetItemList()
             list.push(entry.getData());
         }
     }
-    Spark.setScriptData("list", list);
+    return list;
 }
 
 function GetCurrencyList()
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
+    Spark.setScriptData("list", GetCurrencyListInternal(playerId));
+}
+
+function GetCurrencyListInternal(playerId)
+{
     var softCurrencyId = gameDatabase.currencies.SOFT_CURRENCY;
     var hardCurrencyId = gameDatabase.currencies.HARD_CURRENCY;
     var list = [];
     list.push(GetCurrency(playerId, softCurrencyId));
     list.push(GetCurrency(playerId, hardCurrencyId));
-    Spark.setScriptData("list", list);
+    return list;
 }
 
 function GetStaminaList()
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
+    Spark.setScriptData("list", GetStaminaListInternal(playerId));
+}
+
+function GetStaminaListInternal(playerId)
+{
     var list = [];
     var queryResult = API.queryItems(colPlayerStamina, API.S("playerId").eq(playerId), API.sort("timestamp", false));
     if (!queryResult.error())
@@ -101,13 +121,18 @@ function GetStaminaList()
             list.push(entry.getData());
         }
     }
-    Spark.setScriptData("list", list);
+    return list;
 }
 
 function GetFormationList()
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
+    Spark.setScriptData("list", GetFormationListInternal(playerId));
+}
+
+function GetFormationListInternal(playerId)
+{
     var list = [];
     var queryResult = API.queryItems(colPlayerFormation, API.S("playerId").eq(playerId), API.sort("timestamp", false));
     if (!queryResult.error())
@@ -119,13 +144,18 @@ function GetFormationList()
             list.push(entry.getData());
         }
     }
-    Spark.setScriptData("list", list);
+    return list;
 }
 
 function GetUnlockItemList()
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
+    Spark.setScriptData("list", GetUnlockItemListInternal(playerId));
+}
+
+function GetUnlockItemListInternal(playerId)
+{
     var list = [];
     var queryResult = API.queryItems(colPlayerUnlockItem, API.S("playerId").eq(playerId), API.sort("timestamp", false));
     if (!queryResult.error())
@@ -137,13 +167,18 @@ function GetUnlockItemList()
             list.push(entry.getData());
         }
     }
-    Spark.setScriptData("list", list);
+    return list;
 }
 
 function GetClearStageList()
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
+    Spark.setScriptData("list", GetClearStageListInternal(playerId));
+}
+
+function GetClearStageListInternal(playerId)
+{
     var list = [];
     var queryResult = API.queryItems(colPlayerClearStage, API.S("playerId").eq(playerId), API.sort("timestamp", false));
     if (!queryResult.error())
@@ -155,7 +190,7 @@ function GetClearStageList()
             list.push(entry.getData());
         }
     }
-    Spark.setScriptData("list", list);
+    return list;
 }
 
 function GetHelperList()
