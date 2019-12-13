@@ -28,6 +28,7 @@
 // ====================================================================================================
 
 var API = Spark.getGameDataService();
+var colPlayerAchievement = "playerAchievement";
 var colPlayerItem = "playerItem";
 var colPlayerStamina = "playerStamina";
 var colPlayerFormation = "playerFormation";
@@ -599,5 +600,113 @@ function OpenLootBox(lootBoxDataId, packIndex)
         Spark.setScriptData("updateItems", updateItems);
         Spark.setScriptData("deleteItemIds", deleteItemIds);
         Spark.setScriptData("updateCurrencies", updateCurrencies);
+    }
+}
+
+function EarnAchievementReward(achievementId)
+{
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    var achievement = gameDatabase.achievements[achievementId];
+    if (!achievement)
+    {
+        Spark.setScriptData("error", ERROR_INVALID_ACHIEVEMENT_DATA);
+    }
+    else
+    {
+        var updateAchievementResult = API.getItem(colPlayerAchievement, GeneratePlayerAchievementId(playerId, achievementId));
+        var updateAchievementEntry = updateAchievementResult.document();
+        if (!updateAchievementEntry)
+        {
+            Spark.setScriptData("error", ERROR_ACHIEVEMENT_UNDONE);
+        }
+        else
+        {
+            var playerAchievement = updateAchievementEntry.getData();
+            if (playerAchievement.earned)
+            {
+                Spark.setScriptData("error", ERROR_ACHIEVEMENT_EARNED);
+            }
+            else if (playerAchievement.progress < achievement.targetAmount)
+            {
+                Spark.setScriptData("error", ERROR_ACHIEVEMENT_UNDONE);
+            }
+            else
+            {
+                playerAchievement.earned = true;
+                updateAchievementEntry.setData(playerAchievement);
+                updateAchievementEntry.persistor().persist().error();
+
+                var updateCurrencies = [];
+                var createItems = [];
+                var updateItems = [];
+                var rewardPlayerExp = achievement.rewardPlayerExp;
+                var rewardSoftCurrency = achievement.rewardSoftCurrency;
+                var rewardHardCurrency = achievement.rewardHardCurrency;
+                var rewardItems = [];
+                // Player exp
+                var playerExp = player.getScriptData("exp");
+                playerExp += rewardPlayerExp;
+                player.setScriptData("exp", playerExp);
+                // Soft currency
+                player.credit(gameDatabase.currencies.SOFT_CURRENCY, rewardSoftCurrency, "Earn achievement [" + achievement.id + "]");
+                var softCurrency = GetCurrency(playerId, gameDatabase.currencies.SOFT_CURRENCY);
+                updateCurrencies.push(softCurrency);
+                // Hard currency
+                player.credit(gameDatabase.currencies.HARD_CURRENCY, rewardHardCurrency, "Earn achievement [" + achievement.id + "]");
+                var hardCurrency = GetCurrency(playerId, gameDatabase.currencies.HARD_CURRENCY);
+                updateCurrencies.push(hardCurrency);
+                // Items
+                var countRewardItems = achievement.rewardItems.length;
+                for (var i = 0; i < countRewardItems; ++i)
+                {
+                    var rewardItem = achievement.rewardItems[i];
+                    if (!rewardItem || !rewardItem.id)
+                    {
+                        continue;
+                    }
+                        
+                    var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
+                    if (addItemsResult.success)
+                    {
+                        var countCreateItems = addItemsResult.createItems.length;
+                        var countUpdateItems = addItemsResult.updateItems.length;
+                        for (var j = 0; j < countCreateItems; ++j)
+                        {
+                            var createItem = addItemsResult.createItems[j];
+                            var newItemId = createItem.id;
+                            var newItemEntry = API.createItem(colPlayerItem, newItemId);
+                            newItemEntry.setData(createItem);
+                            newItemEntry.persistor().persist().error();
+                            HelperUnlockItem(playerId, createItem.dataId);
+                            rewardItems.push(createItem);
+                            createItems.push(createItem);
+                        }
+                        for (var j = 0; j < countUpdateItems; ++j)
+                        {
+                            var updateItem = addItemsResult.updateItems[j];
+                            var updateItemResult = API.getItem(colPlayerItem, updateItem.id);
+                            var updateItemEntry = updateItemResult.document();
+                            updateItemEntry.setData(updateItem);
+                            updateItemEntry.persistor().persist().error();
+                            rewardItems.push(updateItem);
+                            updateItems.push(updateItem);
+                        }
+                    }
+                    // End add item condition
+                }
+                // End reward items loop
+
+                Spark.setScriptData("rewardPlayerExp", rewardPlayerExp);
+                Spark.setScriptData("rewardSoftCurrency", rewardSoftCurrency);
+                Spark.setScriptData("rewardHardCurrency", rewardHardCurrency);
+                Spark.setScriptData("rewardItems", rewardItems);
+                Spark.setScriptData("createItems", createItems);
+                Spark.setScriptData("updateItems", updateItems);
+                Spark.setScriptData("deleteItemIds", deleteItemIds);
+                Spark.setScriptData("updateCurrencies", updateCurrencies);
+                Spark.setScriptData("player", GetPlayer(playerId));
+            }
+        }
     }
 }

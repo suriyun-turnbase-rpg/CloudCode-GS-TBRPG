@@ -169,3 +169,7 @@ else if (target === "FinishDuel")
 {
     FinishDuel(data.session, data.battleResult, data.deadCharacters);
 }
+else if (target === "EarnAchievementReward")
+{
+    EarnAchievementReward(data.achievementId);
+}
