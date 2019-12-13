@@ -703,7 +703,6 @@ function EarnAchievementReward(achievementId)
                 Spark.setScriptData("rewardItems", rewardItems);
                 Spark.setScriptData("createItems", createItems);
                 Spark.setScriptData("updateItems", updateItems);
-                Spark.setScriptData("deleteItemIds", deleteItemIds);
                 Spark.setScriptData("updateCurrencies", updateCurrencies);
                 Spark.setScriptData("player", GetPlayer(playerId));
             }
