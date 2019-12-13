@@ -71,7 +71,7 @@ else if (target === "GetClearStageList")
 }
 else if (target === "StartStage")
 {
-    StartStage(data.stageDataId);
+    StartStage(data.stageDataId, data.helperPlayerId);
 }
 else if (target === "FinishStage")
 {

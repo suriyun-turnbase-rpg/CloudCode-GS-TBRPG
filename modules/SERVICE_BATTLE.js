@@ -35,7 +35,7 @@ var colPlayerUnlockItem = "playerUnlockItem";
 var colPlayerClearStage = "playerClearStage";
 var colPlayerBattle = "playerBattle";
 
-function StartStage(stageDataId)
+function StartStage(stageDataId, helperPlayerId)
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
@@ -67,6 +67,10 @@ function StartStage(stageDataId)
         newEntry.persistor().persist().error();
         var staminaTable = gameDatabase.staminas["STAGE"];
         var stamina = GetStamina(playerId, staminaTable.id);
+        if (helperPlayerId && helperPlayerId.length > 0)
+        {
+            QueryUpdateAchievement(UpdateCountUseHelper(playerId, GetAchievementListInternal(playerId)));
+        }
         Spark.setScriptData("stamina", stamina);
         Spark.setScriptData("session", session);
     }
@@ -254,6 +258,7 @@ function ReviveCharacters()
         var hardCurrency = GetCurrency(playerId, hardCurrencyId);
         var updateCurrencies = [];
         updateCurrencies.push(hardCurrency);
+        QueryUpdateAchievement(UpdateCountRevive(playerId, GetAchievementListInternal(playerId)));
         Spark.setScriptData("updateCurrencies", updateCurrencies);
     }
 }

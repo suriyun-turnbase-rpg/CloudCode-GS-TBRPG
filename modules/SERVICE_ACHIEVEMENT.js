@@ -111,42 +111,42 @@ function UpdateTotalClearStageRating(playerId, playerAchievements, playerClearSt
 
 function UpdateCountLevelUpCharacter(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_LEVEL_UP_CHARACTER);
+    return UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_LEVEL_UP_CHARACTER);
 }
 
 function UpdateCountLevelUpEquipment(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_LEVEL_UP_EQUIPMENT);
+    return UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_LEVEL_UP_EQUIPMENT);
 }
 
 function UpdateCountEvolveCharacter(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_EVOLVE_CHARACTER);
+    return UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_EVOLVE_CHARACTER);
 }
 
 function UpdateCountEvolveEquipment(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_EVOLVE_EQUIPMENT);
+    return UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_EVOLVE_EQUIPMENT);
 }
 
 function UpdateCountRevive(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_REVIVE);
+    return UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_REVIVE);
 }
 
 function UpdateCountUseHelper(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_USE_HELPER);
+    return UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_USE_HELPER);
 }
 
 function UpdateCountWinStage(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_WIN_STAGE);
+    return UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_WIN_STAGE);
 }
 
 function UpdateCountWinDuel(playerId, playerAchievements)
 {
-    UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_WIN_DUEL);
+    return UpdateCountingProgress(playerId, playerAchievements, ENUM_COUNT_WIN_DUEL);
 }
 
 function UpdateCountingProgress(playerId, playerAchievements, type)
