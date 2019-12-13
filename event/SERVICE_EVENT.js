@@ -35,6 +35,7 @@ require("SERVICE_BATTLE");
 require("SERVICE_ITEM");
 require("SERVICE_SOCIAL");
 require("SERVICE_ARENA");
+require("SERVICE_ACHIEVEMENT");
 
 var logger = Spark.getLog();
 var gsData = Spark.getData();
