@@ -28,6 +28,7 @@
 // ====================================================================================================
 
 var API = Spark.getGameDataService();
+var colPlayerAchievement = "playerAchievement";
 var colPlayerItem = "playerItem";
 var colPlayerStamina = "playerStamina";
 var colPlayerFormation = "playerFormation";
@@ -394,6 +395,23 @@ function CreatePlayerUnlockItem(playerId, dataId)
         "playerId" : playerId,
         "dataId" : dataId,
         "amount" : 0,
+        "timestamp" : new Date().getTime(),
+    };
+}
+
+function GeneratePlayerAchievementId(playerId, dataId)
+{
+    return (playerId + "-" + dataId).split('_').join('-');
+}
+
+function CreatePlayerAchievement(playerId, dataId)
+{
+    return {
+        "id" : GeneratePlayerAchievementId(playerId, dataId),
+        "playerId" : playerId,
+        "dataId" : dataId,
+        "progress" : 0,
+        "earned" : false,
         "timestamp" : new Date().getTime(),
     };
 }
@@ -858,7 +876,33 @@ function HelperClearStage(apiResult, player, playerId, stage, rating)
         }
     }
     apiResult.clearStage = clearStage;
+    // Update achievement
+    var playerAchievements = GetAchievementListInternal(playerId);
+    var playerClearStages = GetClearStageListInternal(playerId);
+    QueryUpdateAchievement(UpdateTotalClearStage(playerId, playerAchievements, playerClearStages));
+    QueryUpdateAchievement(UpdateTotalClearStageRating(playerId, playerAchievements, playerClearStages));
+    QueryUpdateAchievement(UpdateCountWinStage(playerId, playerAchievements));
     return apiResult;
+}
+
+function QueryUpdateAchievement(updateResult)
+{
+    for (var i = 0; i < updateResult.createAchievements.length; ++i)
+    {
+        var createAchievement = updateResult.createAchievements[i];
+        var newAchievementId = createAchievement.id;
+        var newItemEntry = API.createItem(colPlayerAchievement, newAchievementId);
+        newItemEntry.setData(createAchievement);
+        newItemEntry.persistor().persist().error();
+    }
+    for (var i = 0; i < updateResult.updateAchievements.length; ++i)
+    {
+        var updateAchievement = updateResult.updateAchievements[i];
+        var updateAchievementResult = API.getItem(colPlayerAchievement, updateAchievement.id);
+        var updateAchievementEntry = updateAchievementResult.document();
+        updateAchievementEntry.setData(updateAchievement);
+        updateAchievementEntry.persistor().persist().error();
+    }
 }
 
 function GetFormationCharacterIds(playerId, playerSelectedFormation)

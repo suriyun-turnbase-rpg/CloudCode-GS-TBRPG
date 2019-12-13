@@ -27,9 +27,6 @@
 // SOFTWARE.
 // ====================================================================================================
 
-var API = Spark.getGameDataService();
-var colPlayerAchievement = "playerAchievement";
-
 function FilterAchievements(type)
 {
     var achievements = {};
@@ -55,29 +52,35 @@ function FilterPlayerAchievements(achievements, playerAchievements)
 
 function UpdateTotalClearStage(playerId, playerAchievements, playerClearStages)
 {
+    var createPlayerAchievements = [];
+    var updatePlayerAchievements = [];
     var achievements = FilterAchievements(ENUM_TOTAL_CLEAR_STAGE);
     var playerAchievementDict = FilterPlayerAchievements(achievements, playerAchievements);
     for (var achievementId in achievements)
     {
         if (!playerAchievementDict.hasOwnProperty(achievementId))
         {
-            var newPlayerAchievement = {};
-            newPlayerAchievement.playerId = playerId;
-            newPlayerAchievement.dataId = achievementId;
+            var newPlayerAchievement = GeneratePlayerAchievementId(playerId, achievementId);
             newPlayerAchievement.progress = playerClearStages.length;
-            createPlayerAchievements.Add(newPlayerAchievement);
+            createPlayerAchievements.push(newPlayerAchievement);
         }
         else
         {
             var oldPlayerAchievement = playerAchievementDict[achievementId];
             oldPlayerAchievement.progress = playerClearStages.length;
-            updatePlayerAchievements.Add(oldPlayerAchievement);
+            updatePlayerAchievements.push(oldPlayerAchievement);
         }
+    }
+    return {
+        createAchievements: createPlayerAchievements,
+        updateAchievements: updatePlayerAchievements
     }
 }
 
 function UpdateTotalClearStageRating(playerId, playerAchievements, playerClearStages)
 {
+    var createPlayerAchievements = [];
+    var updatePlayerAchievements = [];
     var achievements = FilterAchievements(ENUM_TOTAL_CLEAR_STAGE_RATING);
     var playerAchievementDict = FilterPlayerAchievements(achievements, playerAchievements);
     var countRating = 0;
@@ -89,18 +92,20 @@ function UpdateTotalClearStageRating(playerId, playerAchievements, playerClearSt
     {
         if (!playerAchievementDict.hasOwnProperty(achievementId))
         {
-            var newPlayerAchievement = {};
-            newPlayerAchievement.playerId = playerId;
-            newPlayerAchievement.dataId = achievementId;
+            var newPlayerAchievement = GeneratePlayerAchievementId(playerId, achievementId);
             newPlayerAchievement.progress = countRating;
-            createPlayerAchievements.Add(newPlayerAchievement);
+            createPlayerAchievements.push(newPlayerAchievement);
         }
         else
         {
             var oldPlayerAchievement = playerAchievementDict[achievementId];
             oldPlayerAchievement.progress = countRating;
-            updatePlayerAchievements.Add(oldPlayerAchievement);
+            updatePlayerAchievements.push(oldPlayerAchievement);
         }
+    }
+    return {
+        createAchievements: createPlayerAchievements,
+        updateAchievements: updatePlayerAchievements
     }
 }
 
@@ -146,23 +151,27 @@ function UpdateCountWinDuel(playerId, playerAchievements)
 
 function UpdateCountingProgress(playerId, playerAchievements, type)
 {
+    var createPlayerAchievements = [];
+    var updatePlayerAchievements = [];
     var achievements = FilterAchievements(type);
     var playerAchievementDict = FilterPlayerAchievements(achievements, playerAchievements);
     for (var achievementId in achievements)
     {
         if (!playerAchievementDict.hasOwnProperty(achievementId))
         {
-            var newPlayerAchievement = {}
-            newPlayerAchievement.playerId = playerId;
-            newPlayerAchievement.dataId = achievementId;
+            var newPlayerAchievement = GeneratePlayerAchievementId(playerId, achievementId);
             newPlayerAchievement.progress = 1;
-            createPlayerAchievements.Add(newPlayerAchievement);
+            createPlayerAchievements.push(newPlayerAchievement);
         }
         else
         {
             var oldPlayerAchievement = playerAchievementDict[achievementId];
             ++oldPlayerAchievement.progress;
-            updatePlayerAchievements.Add(oldPlayerAchievement);
+            updatePlayerAchievements.push(oldPlayerAchievement);
         }
+    }
+    return {
+        createAchievements: createPlayerAchievements,
+        updateAchievements: updatePlayerAchievements
     }
 }
