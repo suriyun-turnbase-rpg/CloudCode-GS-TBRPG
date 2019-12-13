@@ -143,6 +143,18 @@ function LevelUpItem(itemId, materials)
             }
             var softCurrency = GetCurrency(playerId, softCurrencyId);
             updateCurrencies.push(softCurrency);
+            // Update achievement
+            var itemData = gameDatabase.items[item.dataId];
+            if (itemData)
+            {
+                if (itemData.type == "CharacterItem") {
+                    QueryUpdateAchievement(UpdateCountLevelUpCharacter(playerId, GetAchievementListInternal(playerId)));
+                }
+                if (itemData.type == "EquipmentItem") {
+                    QueryUpdateAchievement(UpdateCountLevelUpEquipment(playerId, GetAchievementListInternal(playerId)));
+                }
+            }
+            // Set API result
             Spark.setScriptData("updateItems", updateItems);
             Spark.setScriptData("deleteItemIds", deleteItemIds);
             Spark.setScriptData("updateCurrencies", updateCurrencies);
@@ -287,6 +299,18 @@ function EvolveItem(itemId, materials)
             }
             var softCurrency = GetCurrency(playerId, softCurrencyId);
             updateCurrencies.push(softCurrency);
+            // Update achievement
+            var itemData = gameDatabase.items[item.dataId];
+            if (itemData)
+            {
+                if (itemData.type == "CharacterItem") {
+                    QueryUpdateAchievement(UpdateCountEvolveCharacter(playerId, GetAchievementListInternal(playerId)));
+                }
+                if (itemData.type == "EquipmentItem") {
+                    QueryUpdateAchievement(UpdateCountEvolveEquipment(playerId, GetAchievementListInternal(playerId)));
+                }
+            }
+            // Set API result
             Spark.setScriptData("updateItems", updateItems);
             Spark.setScriptData("deleteItemIds", deleteItemIds);
             Spark.setScriptData("updateCurrencies", updateCurrencies);

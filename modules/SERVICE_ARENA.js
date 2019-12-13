@@ -189,6 +189,8 @@ function FinishDuel(session, battleResult, deadCharacters)
                 }
                 // End reward items loop
             }
+            // Update achievement
+            QueryUpdateAchievement(UpdateCountWinDuel(playerId, GetAchievementListInternal(playerId)));
         }
         else
         {
@@ -196,6 +198,7 @@ function FinishDuel(session, battleResult, deadCharacters)
             arenaScore -= gameDatabase.arenaLoseScoreDecrease;
             player.setScriptData("arenaScore", arenaScore);
         }
+        // Set API result
         Spark.setScriptData("rewardItems", rewardItems);
         Spark.setScriptData("createItems", createItems);
         Spark.setScriptData("updateItems", updateItems);

@@ -69,8 +69,10 @@ function StartStage(stageDataId, helperPlayerId)
         var stamina = GetStamina(playerId, staminaTable.id);
         if (helperPlayerId && helperPlayerId.length > 0)
         {
+            // Update achievement
             QueryUpdateAchievement(UpdateCountUseHelper(playerId, GetAchievementListInternal(playerId)));
         }
+        // Set API result
         Spark.setScriptData("stamina", stamina);
         Spark.setScriptData("session", session);
     }
@@ -223,6 +225,7 @@ function FinishStage(session, battleResult, deadCharacters)
                 apiResult.rating = rating;
                 apiResult = HelperClearStage(apiResult, player, playerId, stage, rating);
             }
+            // Set API result
             Spark.setScriptData("rewardItems", apiResult.rewardItems);
             Spark.setScriptData("createItems", apiResult.createItems);
             Spark.setScriptData("updateItems", apiResult.updateItems);
@@ -258,7 +261,9 @@ function ReviveCharacters()
         var hardCurrency = GetCurrency(playerId, hardCurrencyId);
         var updateCurrencies = [];
         updateCurrencies.push(hardCurrency);
+        // Update achievement
         QueryUpdateAchievement(UpdateCountRevive(playerId, GetAchievementListInternal(playerId)));
+        // Set API result
         Spark.setScriptData("updateCurrencies", updateCurrencies);
     }
 }
