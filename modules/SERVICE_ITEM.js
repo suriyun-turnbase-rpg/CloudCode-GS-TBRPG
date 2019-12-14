@@ -640,6 +640,7 @@ function EarnAchievementReward(achievementId)
                 var updateCurrencies = [];
                 var createItems = [];
                 var updateItems = [];
+                var deleteItemIds = [];
                 var rewardPlayerExp = achievement.rewardPlayerExp;
                 var rewardSoftCurrency = achievement.rewardSoftCurrency;
                 var rewardHardCurrency = achievement.rewardHardCurrency;
@@ -703,6 +704,7 @@ function EarnAchievementReward(achievementId)
                 Spark.setScriptData("rewardItems", rewardItems);
                 Spark.setScriptData("createItems", createItems);
                 Spark.setScriptData("updateItems", updateItems);
+                Spark.setScriptData("deleteItemIds", deleteItemIds);
                 Spark.setScriptData("updateCurrencies", updateCurrencies);
                 Spark.setScriptData("player", GetPlayer(playerId));
             }
