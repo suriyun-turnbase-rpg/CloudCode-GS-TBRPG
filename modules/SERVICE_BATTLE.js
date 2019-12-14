@@ -112,6 +112,7 @@ function FinishStage(session, battleResult, deadCharacters)
                 rewardCharacterExp: 0,
                 rating: 0,
                 clearStage: {},
+                isFirstClear: false,
                 firstClearRewardPlayerExp: 0,
                 firstClearRewardSoftCurrency: 0,
                 firstClearRewardHardCurrency: 0,
@@ -236,6 +237,7 @@ function FinishStage(session, battleResult, deadCharacters)
             Spark.setScriptData("rewardSoftCurrency", apiResult.rewardSoftCurrency);
             Spark.setScriptData("rating", apiResult.rating);
             Spark.setScriptData("clearStage", apiResult.clearStage);
+            Spark.setScriptData("isFirstClear", apiResult.isFirstClear);
             Spark.setScriptData("firstClearRewardPlayerExp", apiResult.firstClearRewardPlayerExp);
             Spark.setScriptData("firstClearRewardSoftCurrency", apiResult.firstClearRewardSoftCurrency);
             Spark.setScriptData("firstClearRewardHardCurrency", apiResult.firstClearRewardHardCurrency);

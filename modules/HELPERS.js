@@ -857,6 +857,7 @@ function HelperClearStage(apiResult, player, playerId, stage, rating)
             // End add item condition
         }
         // End reward items loop
+        apiResult.isFirstClear = true;
         apiResult.updateCurrencies = updateCurrencies;
         apiResult.createItems = createItems;
         apiResult.updateItems = updateItems;
