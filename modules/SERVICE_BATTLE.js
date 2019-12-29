@@ -110,6 +110,7 @@ function FinishStage(session, battleResult, deadCharacters)
                 updateCurrencies: [],
                 rewardPlayerExp: 0,
                 rewardCharacterExp: 0,
+                rewardSoftCurrency: 0,
                 rating: 0,
                 clearStage: {},
                 isFirstClear: false,
