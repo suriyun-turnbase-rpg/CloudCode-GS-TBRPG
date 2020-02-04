@@ -651,6 +651,235 @@ function GetPlayer(playerId)
     };
 }
 
+function GetItemRandomAttributes(dataId)
+{
+    var item = gameDatabase.items[dataId];
+    if (!item || !item.randomAttributes)
+        return {};
+
+    var minType = 0;
+    if (randomAttributes.minType) {
+        minType = randomAttributes.minType;
+    }
+    var maxType = 0;
+    if (randomAttributes.maxType) {
+        maxType = randomAttributes.maxType;
+    }
+    var minHp = 0;
+    if (randomAttributes.minHp) {
+        minHp = randomAttributes.minHp;
+    }
+    var maxHp = 0;
+    if (randomAttributes.maxHp) {
+        maxHp = randomAttributes.maxHp;
+    }
+    var minPAtk = 0;
+    if (randomAttributes.minPAtk) {
+        minPAtk = randomAttributes.minPAtk;
+    }
+    var maxPAtk = 0;
+    if (randomAttributes.maxPAtk) {
+        maxPAtk = randomAttributes.maxPAtk;
+    }
+    var minPDef = 0;
+    if (randomAttributes.minPDef) {
+        minPDef = randomAttributes.minPDef;
+    }
+    var maxPDef = 0;
+    if (randomAttributes.maxPDef) {
+        maxPDef = randomAttributes.maxPDef;
+    }
+    var minMAtk = 0;
+    if (randomAttributes.minMAtk) {
+        minMAtk = randomAttributes.minMAtk;
+    }
+    var maxMAtk = 0;
+    if (randomAttributes.maxMAtk) {
+        maxMAtk = randomAttributes.maxMAtk;
+    }
+    var minMDef = 0;
+    if (randomAttributes.minMDef) {
+        minMDef = randomAttributes.minMDef;
+    }
+    var maxMDef = 0;
+    if (randomAttributes.maxMDef) {
+        maxMDef = randomAttributes.maxMDef;
+    }
+    var minSpd = 0;
+    if (randomAttributes.minSpd) {
+        minSpd = randomAttributes.minSpd;
+    }
+    var maxSpd = 0;
+    if (randomAttributes.maxSpd) {
+        maxSpd = randomAttributes.maxSpd;
+    }
+    var minEva = 0;
+    if (randomAttributes.minEva) {
+        minEva = randomAttributes.minEva;
+    }
+    var maxEva = 0;
+    if (randomAttributes.maxEva) {
+        maxEva = randomAttributes.maxEva;
+    }
+    var minAcc = 0;
+    if (randomAttributes.minAcc) {
+        minAcc = randomAttributes.minAcc;
+    }
+    var maxAcc = 0;
+    if (randomAttributes.maxAcc) {
+        maxAcc = randomAttributes.maxAcc;
+    }
+    var minCritChance = 0;
+    if (randomAttributes.minCritChance) {
+        minCritChance = randomAttributes.minCritChance;
+    }
+    var maxCritChance = 0;
+    if (randomAttributes.maxCritChance) {
+        maxCritChance = randomAttributes.maxCritChance;
+    }
+    var minCritDamageRate = 0;
+    if (randomAttributes.minCritDamageRate) {
+        minCritDamageRate = randomAttributes.minCritDamageRate;
+    }
+    var maxCritDamageRate = 0;
+    if (randomAttributes.maxCritDamageRate) {
+        maxCritDamageRate = randomAttributes.maxCritDamageRate;
+    }
+    var minBlockChance = 0;
+    if (randomAttributes.minBlockChance) {
+        minBlockChance = randomAttributes.minBlockChance;
+    }
+    var maxBlockChance = 0;
+    if (randomAttributes.maxBlockChance) {
+        maxBlockChance = randomAttributes.maxBlockChance;
+    }
+    var minBlockDamageRate = 0;
+    if (randomAttributes.minBlockDamageRate) {
+        minBlockDamageRate = randomAttributes.minBlockDamageRate;
+    }
+    var maxBlockDamageRate = 0;
+    if (randomAttributes.maxBlockDamageRate) {
+        maxBlockDamageRate = randomAttributes.maxBlockDamageRate;
+    }
+    var minResistanceChance = 0;
+    if (randomAttributes.minResistanceChance) {
+        minResistanceChance = randomAttributes.minResistanceChance;
+    }
+    var maxResistanceChance = 0;
+    if (randomAttributes.maxResistanceChance) {
+        maxResistanceChance = randomAttributes.maxResistanceChance;
+    }
+    
+    var result = {};
+    var randomingAmounts = {};
+    var tempIntVal = 0;
+    var tempFloatVal = 0;
+    // Hp
+    tempIntVal = RandomRange(minHp, maxHp);
+    if (tempIntVal != 0)
+        randomingAmounts[ENUM_HP] = tempIntVal;
+    // PAtk
+    tempIntVal = RandomRange(minPAtk, maxPAtk);
+    if (tempIntVal != 0)
+        randomingAmounts[ENUM_PATK] = tempIntVal;
+    // PDef
+    tempIntVal = RandomRange(minPDef, maxPDef);
+    if (tempIntVal != 0)
+        randomingAmounts[ENUM_PDEF] = tempIntVal;
+    // MAtk
+    tempIntVal = RandomRange(minMAtk, maxMAtk);
+    if (tempIntVal != 0)
+        randomingAmounts[ENUM_MATK] = tempIntVal;
+    // MDef
+    tempIntVal = RandomRange(minMDef, maxMDef);
+    if (tempIntVal != 0)
+        randomingAmounts[ENUM_MDEF] = tempIntVal;
+    // Spd
+    tempIntVal = RandomRange(minSpd, maxSpd);
+    if (tempIntVal != 0)
+        randomingAmounts[ENUM_SPD] = tempIntVal;
+    // Eva
+    tempIntVal = RandomRange(minEva, maxEva);
+    if (tempIntVal != 0)
+        randomingAmounts[ENUM_EVA] = tempIntVal;
+    // Acc
+    tempIntVal = RandomRange(minAcc, maxAcc);
+    if (tempIntVal != 0)
+        randomingAmounts[ENUM_ACC] = tempIntVal;
+    // Crit Chance
+    tempFloatVal = RandomRange(minCritChance, maxCritChance);
+    if (tempFloatVal != 0)
+        randomingAmounts[ENUM_CRIT_CHANCE] = tempFloatVal;
+    // Crit Damage Rate
+    tempFloatVal = RandomRange(minCritDamageRate, maxCritDamageRate);
+    if (tempFloatVal != 0)
+        randomingAmounts[ENUM_CRIT_DAMAGE_RATE] = tempFloatVal;
+    // Block Chance
+    tempFloatVal = RandomRange(minBlockChance, maxBlockChance);
+    if (tempFloatVal != 0)
+        randomingAmounts[ENUM_BLOCK_CHANCE] = tempFloatVal;
+    // Block Damage Rate
+    tempFloatVal = RandomRange(minBlockDamageRate, maxBlockDamageRate);
+    if (tempFloatVal != 0)
+        randomingAmounts[ENUM_BLOCK_DAMAGE_RATE] = tempFloatVal;
+    // Resistance
+    tempFloatVal = RandomRange(minResistanceChance, maxResistanceChance);
+    if (tempFloatVal != 0)
+        randomingAmounts[ENUM_RESISTANCE_CHANCE] = tempFloatVal;
+    
+    var shufflingKeys = ShuffleArray(Object.keys(randomingAmounts));
+    tempIntVal = RandomRange(minType, maxType);
+    if (randomingAmounts.length < tempIntVal)
+        tempIntVal = randomingAmounts.length;
+
+    for (var i = 0; i < tempIntVal; ++i) {
+        switch (shufflingKeys[i])
+        {
+            case ENUM_HP:
+                result.hp = randomingAmounts[shufflingKeys[i]];
+            break;
+            case ENUM_PATK:
+                result.pAtk = randomingAmounts[shufflingKeys[i]];
+            break;
+            case ENUM_PDEF:
+                result.pDef = randomingAmounts[shufflingKeys[i]];
+            break;
+            case ENUM_MATK:
+                result.mAtk = randomingAmounts[shufflingKeys[i]];
+            break;
+            case ENUM_MDEF:
+                result.mDef = randomingAmounts[shufflingKeys[i]];
+            break;
+            case ENUM_SPD:
+                result.spd = randomingAmounts[shufflingKeys[i]];
+            break;
+            case ENUM_EVA:
+                result.eva = randomingAmounts[shufflingKeys[i]];
+            break;
+            case ENUM_ACC:
+                result.acc = randomingAmounts[shufflingKeys[i]];
+            break;
+            case ENUM_CRIT_CHANCE:
+                result.critChance = randomingAmounts[shufflingKeys[i]];
+            break;
+            case ENUM_CRIT_DAMAGE_RATE:
+                result.critDamageRate = randomingAmounts[shufflingKeys[i]];
+            break;
+            case ENUM_BLOCK_CHANCE:
+                result.blockChance = randomingAmounts[shufflingKeys[i]];
+            break;
+            case ENUM_BLOCK_DAMAGE_RATE:
+                result.blockDamageRate = randomingAmounts[shufflingKeys[i]];
+            break;
+            case ENUM_RESISTANCE_CHANCE:
+                result.resistanceChance = randomingAmounts[shufflingKeys[i]];
+            break;
+        }
+    }
+
+    result;
+}
+
 function AddItems(playerId, dataId, amount)
 {
     var item = gameDatabase.items[dataId];
@@ -687,6 +916,7 @@ function AddItems(playerId, dataId, amount)
     while (amount > 0)
     {
         var newEntry = CreatePlayerItem(playerId, dataId);
+        newEntry.randomedAttributes = GetItemRandomAttributes(dataId);
         if (amount > maxStack)
         {
             newEntry.amount = maxStack;
