@@ -830,8 +830,8 @@ function GetItemRandomAttributes(dataId)
     
     var shufflingKeys = ShuffleArray(Object.keys(randomingAmounts));
     tempIntVal = RandomRange(minType, maxType);
-    if (randomingAmounts.length < tempIntVal)
-        tempIntVal = randomingAmounts.length;
+    if (shufflingKeys.length < tempIntVal)
+        tempIntVal = shufflingKeys.length;
 
     for (var i = 0; i < tempIntVal; ++i) {
         switch (shufflingKeys[i])
@@ -1268,17 +1268,6 @@ function GetPlayerIds()
         playerIds.push(data.playerId);
     }
     return playerIds;
-}
-
-function SetItemsAttributes(items)
-{
-    for (var i = 0; i < items.length; ++i) {
-        var item = items[i];
-        if (item.randomedAttributes)
-            item.randomedAttributes = JSON.parse(item.randomedAttributes);
-        items[i] = item;
-    }
-    return items;
 }
 
 function CreateEmptyItem(id, playerId, dataId, amount)

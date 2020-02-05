@@ -156,7 +156,7 @@ function LevelUpItem(itemId, materials)
                 }
             }
             // Set API result
-            Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
+            Spark.setScriptData("updateItems", updateItems);
             Spark.setScriptData("deleteItemIds", deleteItemIds);
             Spark.setScriptData("updateCurrencies", updateCurrencies);
         }
@@ -312,7 +312,7 @@ function EvolveItem(itemId, materials)
                 }
             }
             // Set API result
-            Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
+            Spark.setScriptData("updateItems", updateItems);
             Spark.setScriptData("deleteItemIds", deleteItemIds);
             Spark.setScriptData("updateCurrencies", updateCurrencies);
         }
@@ -399,7 +399,7 @@ function SellItems(items)
     }
     var softCurrency = GetCurrency(playerId, softCurrencyId);
     updateCurrencies.push(softCurrency);
-    Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
+    Spark.setScriptData("updateItems", updateItems);
     Spark.setScriptData("deleteItemIds", deleteItemIds);
     Spark.setScriptData("updateCurrencies", updateCurrencies);
 }
@@ -462,7 +462,7 @@ function EquipItem(characterId, equipmentId, equipPosition)
                 equipItemDoc.persistor().persist().error();
             }
             updateItems.push(equipment);
-            Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
+            Spark.setScriptData("updateItems", updateItems);
         }
     }
 }
@@ -489,7 +489,7 @@ function UnEquipItem(equipmentId)
         unEquipItemDoc.setData(unEquipItem);
         unEquipItemDoc.persistor().persist().error();
         updateItems.push(unEquipItem);
-        Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
+        Spark.setScriptData("updateItems", updateItems);
     }
 }
 
@@ -609,9 +609,9 @@ function OpenLootBox(lootBoxDataId, packIndex)
             }
             // End reward items loop
         }
-        Spark.setScriptData("rewardItems", SetItemsAttributes(rewardItems));
-        Spark.setScriptData("createItems", SetItemsAttributes(createItems));
-        Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
+        Spark.setScriptData("rewardItems", rewardItems);
+        Spark.setScriptData("createItems", createItems);
+        Spark.setScriptData("updateItems", updateItems);
         Spark.setScriptData("deleteItemIds", deleteItemIds);
         Spark.setScriptData("updateCurrencies", updateCurrencies);
     }
@@ -707,11 +707,11 @@ function OpenInGamePackage(inGamePackageDataId)
             }
             // End reward items loop
         }
-        Spark.setScriptData("rewardItems", SetItemsAttributes(rewardItems));
+        Spark.setScriptData("rewardItems", rewardItems);
         Spark.setScriptData("rewardSoftCurrency", rewardSoftCurrency);
         Spark.setScriptData("rewardHardCurrency", rewardHardCurrency);
-        Spark.setScriptData("createItems", SetItemsAttributes(createItems));
-        Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
+        Spark.setScriptData("createItems", createItems);
+        Spark.setScriptData("updateItems", updateItems);
         Spark.setScriptData("deleteItemIds", deleteItemIds);
         Spark.setScriptData("updateCurrencies", updateCurrencies);
     }
@@ -815,9 +815,9 @@ function EarnAchievementReward(achievementId)
                 Spark.setScriptData("rewardPlayerExp", rewardPlayerExp);
                 Spark.setScriptData("rewardSoftCurrency", rewardSoftCurrency);
                 Spark.setScriptData("rewardHardCurrency", rewardHardCurrency);
-                Spark.setScriptData("rewardItems", SetItemsAttributes(rewardItems));
-                Spark.setScriptData("createItems", SetItemsAttributes(createItems));
-                Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
+                Spark.setScriptData("rewardItems", rewardItems);
+                Spark.setScriptData("createItems", createItems);
+                Spark.setScriptData("updateItems", updateItems);
                 Spark.setScriptData("deleteItemIds", deleteItemIds);
                 Spark.setScriptData("updateCurrencies", updateCurrencies);
                 Spark.setScriptData("player", GetPlayer(playerId));
