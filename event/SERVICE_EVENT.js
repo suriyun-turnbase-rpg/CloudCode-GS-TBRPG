@@ -118,9 +118,17 @@ else if (target === "GetAvailableIapPackageList")
 {
     GetAvailableIapPackageList();
 }
+else if (target === "GetAvailableInGamePackageList")
+{
+    GetAvailableInGamePackageList();
+}
 else if (target === "OpenLootBox")
 {
     OpenLootBox(data.lootBoxDataId, data.packIndex);
+}
+else if (target === "OpenInGamePackage")
+{
+    OpenInGamePackage(data.inGamePackageDataId);
 }
 else if (target === "GetHelperList")
 {

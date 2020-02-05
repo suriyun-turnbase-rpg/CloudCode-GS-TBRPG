@@ -1060,6 +1060,13 @@ function HelperClearStage(apiResult, player, playerId, stage, rating)
             var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
             if (addItemsResult.success)
             {
+                var newRewardEntry = {
+                    playerId : playerId,
+                    dataId : rewardItem.id,
+                    amount : rewardItem.amount
+                };
+                firstClearRewardItems.push(newRewardEntry);
+                
                 var countCreateItems = addItemsResult.createItems.length;
                 var countUpdateItems = addItemsResult.updateItems.length;
                 for (var j = 0; j < countCreateItems; ++j)
@@ -1070,7 +1077,6 @@ function HelperClearStage(apiResult, player, playerId, stage, rating)
                     newItemEntry.setData(createItem);
                     newItemEntry.persistor().persist().error();
                     HelperUnlockItem(playerId, createItem.dataId);
-                    firstClearRewardItems.push(createItem);
                     createItems.push(createItem);
                 }
                 for (var j = 0; j < countUpdateItems; ++j)
@@ -1080,7 +1086,6 @@ function HelperClearStage(apiResult, player, playerId, stage, rating)
                     var updateItemEntry = updateItemResult.document();
                     updateItemEntry.setData(updateItem);
                     updateItemEntry.persistor().persist().error();
-                    firstClearRewardItems.push(updateItem);
                     updateItems.push(updateItem);
                 }
             }

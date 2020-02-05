@@ -513,6 +513,16 @@ function GetAvailableIapPackageList()
     Spark.setScriptData("list", list);
 }
 
+function GetAvailableInGamePackageList()
+{
+    var list = [];
+    for (var key in gameDatabase.inGamePackages)
+    {
+        list.push(key);
+    }
+    Spark.setScriptData("list", list);
+}
+
 function OpenLootBox(lootBoxDataId, packIndex)
 {
     var player = Spark.getPlayer();
@@ -526,6 +536,7 @@ function OpenLootBox(lootBoxDataId, packIndex)
     {
         var softCurrencyId = gameDatabase.currencies.SOFT_CURRENCY;
         var hardCurrencyId = gameDatabase.currencies.HARD_CURRENCY;
+        var rewardItems = [];
         var createItems = [];
         var updateItems = [];
         var deleteItemIds = [];
@@ -571,6 +582,13 @@ function OpenLootBox(lootBoxDataId, packIndex)
                 var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
                 if (addItemsResult.success)
                 {
+                    var newRewardEntry = {
+                        playerId : playerId,
+                        dataId : rewardItem.id,
+                        amount : rewardItem.amount
+                    };
+                    rewardItems.push(newRewardEntry);
+
                     var countCreateItems = addItemsResult.createItems.length;
                     var countUpdateItems = addItemsResult.updateItems.length;
                     for (var j = 0; j < countCreateItems; ++j)
@@ -596,6 +614,112 @@ function OpenLootBox(lootBoxDataId, packIndex)
             }
             // End reward items loop
         }
+        Spark.setScriptData("rewardItems", rewardItems);
+        Spark.setScriptData("createItems", createItems);
+        Spark.setScriptData("updateItems", updateItems);
+        Spark.setScriptData("deleteItemIds", deleteItemIds);
+        Spark.setScriptData("updateCurrencies", updateCurrencies);
+    }
+}
+
+function OpenInGamePackage(inGamePackageDataId)
+{
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    var inGamePackage = gameDatabase.inGamePackages[inGamePackageDataId];
+    if (!inGamePackage)
+    {
+        Spark.setScriptData("error", ERROR_INVALID_IN_GAME_PACKAGE_DATA);
+    }
+    else
+    {
+        var softCurrencyId = gameDatabase.currencies.SOFT_CURRENCY;
+        var hardCurrencyId = gameDatabase.currencies.HARD_CURRENCY;
+        var rewardItems = [];
+        var createItems = [];
+        var updateItems = [];
+        var deleteItemIds = [];
+        var updateCurrencies = [];
+        var requirementType = inGamePackage.requirementType;
+        var price = inGamePackage.price;
+        var rewardSoftCurrency = inGamePackage.rewardSoftCurrency;
+        var rewardHardCurrency = inGamePackage.rewardHardCurrency;
+        if (requirementType == ENUM_IN_GAME_PACKAGE_REQUIREMENT_TYPE_SOFT_CURRENCY && price > player.getBalance(softCurrencyId))
+        {
+            Spark.setScriptData("error", ERROR_NOT_ENOUGH_SOFT_CURRENCY);
+        }
+        else if (requirementType == ENUM_IN_GAME_PACKAGE_REQUIREMENT_TYPE_HARD_CURRENCY && price > player.getBalance(hardCurrencyId))
+        {
+            Spark.setScriptData("error", ERROR_NOT_ENOUGH_HARD_CURRENCY);
+        }
+        else
+        {
+            switch (requirementType)
+            {
+                case ENUM_IN_GAME_PACKAGE_REQUIREMENT_TYPE_SOFT_CURRENCY:
+                    player.debit(softCurrencyId, price, "Open In-Game Package [" + inGamePackageDataId + ", " + packIndex + "]");
+                    break;
+                case ENUM_IN_GAME_PACKAGE_REQUIREMENT_TYPE_HARD_CURRENCY:
+                    player.debit(hardCurrencyId, price, "Open In-Game Package [" + inGamePackageDataId + ", " + packIndex + "]");
+                    break;
+            }
+
+            // Increase soft currency
+            player.credit(softCurrencyId, rewardSoftCurrency, "Open In-Game Package - Soft Currency Reward [" + inGamePackageDataId + ", " + packIndex + "]");
+            var softCurrency = GetCurrency(playerId, softCurrencyId);
+            updateCurrencies.push(softCurrency);
+            // Increase hard currency
+            player.credit(hardCurrencyId, rewardHardCurrency, "Open In-Game Package - Hard Currency Reward [" + inGamePackageDataId + ", " + packIndex + "]");
+            var hardCurrency = GetCurrency(playerId, hardCurrencyId);
+            updateCurrencies.push(hardCurrency);
+            
+            var rewardItems = inGamePackage.rewardItems;
+            for (var i = 0; i < rewardItems.length; ++i)
+            {
+                var rewardItem = rewardItems[i];
+                if (!rewardItem)
+                {
+                    continue;
+                }
+                    
+                var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
+                if (addItemsResult.success)
+                {
+                    var newRewardEntry = {
+                        playerId : playerId,
+                        dataId : rewardItem.id,
+                        amount : rewardItem.amount
+                    };
+                    rewardItems.push(newRewardEntry);
+
+                    var countCreateItems = addItemsResult.createItems.length;
+                    var countUpdateItems = addItemsResult.updateItems.length;
+                    for (var j = 0; j < countCreateItems; ++j)
+                    {
+                        var createItem = addItemsResult.createItems[j];
+                        var newItemEntry = API.createItem(colPlayerItem, createItem.id);
+                        newItemEntry.setData(createItem);
+                        newItemEntry.persistor().persist().error();
+                        HelperUnlockItem(playerId, createItem.dataId);
+                        createItems.push(createItem);
+                    }
+                    for (var j = 0; j < countUpdateItems; ++j)
+                    {
+                        var updateItem = addItemsResult.updateItems[j];
+                        var updateItemResult = API.getItem(colPlayerItem, updateItem.id);
+                        var updateItemEntry = updateItemResult.document();
+                        updateItemEntry.setData(updateItem);
+                        updateItemEntry.persistor().persist().error();
+                        updateItems.push(updateItem);
+                    }
+                }
+                // End add item condition
+            }
+            // End reward items loop
+        }
+        Spark.setScriptData("rewardItems", rewardItems);
+        Spark.setScriptData("rewardSoftCurrency", rewardSoftCurrency);
+        Spark.setScriptData("rewardHardCurrency", rewardHardCurrency);
         Spark.setScriptData("createItems", createItems);
         Spark.setScriptData("updateItems", updateItems);
         Spark.setScriptData("deleteItemIds", deleteItemIds);
@@ -670,6 +794,13 @@ function EarnAchievementReward(achievementId)
                     var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
                     if (addItemsResult.success)
                     {
+                        var newRewardEntry = {
+                            playerId : playerId,
+                            dataId : rewardItem.id,
+                            amount : rewardItem.amount
+                        };
+                        rewardItems.push(newRewardEntry);
+
                         var countCreateItems = addItemsResult.createItems.length;
                         var countUpdateItems = addItemsResult.updateItems.length;
                         for (var j = 0; j < countCreateItems; ++j)
@@ -680,7 +811,6 @@ function EarnAchievementReward(achievementId)
                             newItemEntry.setData(createItem);
                             newItemEntry.persistor().persist().error();
                             HelperUnlockItem(playerId, createItem.dataId);
-                            rewardItems.push(createItem);
                             createItems.push(createItem);
                         }
                         for (var j = 0; j < countUpdateItems; ++j)
@@ -690,7 +820,6 @@ function EarnAchievementReward(achievementId)
                             var updateItemEntry = updateItemResult.document();
                             updateItemEntry.setData(updateItem);
                             updateItemEntry.persistor().persist().error();
-                            rewardItems.push(updateItem);
                             updateItems.push(updateItem);
                         }
                     }

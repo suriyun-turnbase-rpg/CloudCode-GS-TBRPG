@@ -188,6 +188,13 @@ function FinishStage(session, battleResult, deadCharacters)
                     var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
                     if (addItemsResult.success)
                     {
+                        var newRewardEntry = {
+                            playerId : playerId,
+                            dataId : rewardItem.id,
+                            amount : rewardItem.amount
+                        };
+                        rewardItems.push(newRewardEntry);
+
                         var countCreateItems = addItemsResult.createItems.length;
                         var countUpdateItems = addItemsResult.updateItems.length;
                         for (var j = 0; j < countCreateItems; ++j)
@@ -198,7 +205,6 @@ function FinishStage(session, battleResult, deadCharacters)
                             newItemEntry.setData(createItem);
                             newItemEntry.persistor().persist().error();
                             HelperUnlockItem(playerId, createItem.dataId);
-                            rewardItems.push(createItem);
                             createItems.push(createItem);
                         }
                         for (var j = 0; j < countUpdateItems; ++j)
@@ -208,7 +214,6 @@ function FinishStage(session, battleResult, deadCharacters)
                             var updateItemEntry = updateItemResult.document();
                             updateItemEntry.setData(updateItem);
                             updateItemEntry.persistor().persist().error();
-                            rewardItems.push(updateItem);
                             updateItems.push(updateItem);
                         }
                     }
