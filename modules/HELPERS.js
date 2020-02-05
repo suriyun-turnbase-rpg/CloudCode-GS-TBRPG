@@ -1265,8 +1265,6 @@ function CreateEmptyItem(id, playerId, dataId, amount)
     newRewardEntry.exp = 0;
     newRewardEntry.equipItemId = '';
     newRewardEntry.equipPosition = '';
-    newRewardEntry.randomedAttributes = '{}';
-    newRewardEntry.createdAt = 0;
-    newRewardEntry.updatedAt = 0;
+    newRewardEntry.randomedAttributes = {};
     return newRewardEntry;
 }
