@@ -161,12 +161,7 @@ function FinishDuel(session, battleResult, deadCharacters)
                     var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
                     if (addItemsResult.success)
                     {
-                        var newRewardEntry = {
-                            playerId : playerId,
-                            dataId : rewardItem.id,
-                            amount : rewardItem.amount
-                        };
-                        rewardItems.push(newRewardEntry);
+                        rewardItems.push(CreateEmptyItem(i, playerId, rewardItem.id, rewardItem.amount));
 
                         var countCreateItems = addItemsResult.createItems.length;
                         var countUpdateItems = addItemsResult.updateItems.length;
@@ -204,9 +199,9 @@ function FinishDuel(session, battleResult, deadCharacters)
             player.setScriptData("arenaScore", arenaScore);
         }
         // Set API result
-        Spark.setScriptData("rewardItems", rewardItems);
-        Spark.setScriptData("createItems", createItems);
-        Spark.setScriptData("updateItems", updateItems);
+        Spark.setScriptData("rewardItems", SetItemsAttributes(rewardItems));
+        Spark.setScriptData("createItems", SetItemsAttributes(createItems));
+        Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
         Spark.setScriptData("deleteItemIds", deleteItemIds);
         Spark.setScriptData("updateCurrencies", updateCurrencies);
         Spark.setScriptData("rewardSoftCurrency", rewardSoftCurrency);

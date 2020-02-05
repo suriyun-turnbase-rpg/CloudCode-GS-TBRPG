@@ -657,6 +657,7 @@ function GetItemRandomAttributes(dataId)
     if (!item || !item.randomAttributes)
         return {};
 
+    var randomAttributes = item.randomAttributes;
     var minType = 0;
     if (randomAttributes.minType) {
         minType = randomAttributes.minType;
@@ -877,7 +878,7 @@ function GetItemRandomAttributes(dataId)
         }
     }
 
-    result;
+    return result;
 }
 
 function AddItems(playerId, dataId, amount)
@@ -1060,12 +1061,7 @@ function HelperClearStage(apiResult, player, playerId, stage, rating)
             var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
             if (addItemsResult.success)
             {
-                var newRewardEntry = {
-                    playerId : playerId,
-                    dataId : rewardItem.id,
-                    amount : rewardItem.amount
-                };
-                firstClearRewardItems.push(newRewardEntry);
+                firstClearRewardItems.push(CreateEmptyItem(i, playerId, rewardItem.id, rewardItem.amount));
                 
                 var countCreateItems = addItemsResult.createItems.length;
                 var countUpdateItems = addItemsResult.updateItems.length;
@@ -1272,4 +1268,31 @@ function GetPlayerIds()
         playerIds.push(data.playerId);
     }
     return playerIds;
+}
+
+function SetItemsAttributes(items)
+{
+    for (var i = 0; i < items.length; ++i) {
+        var item = items[i];
+        if (item.randomedAttributes)
+            item.randomedAttributes = JSON.parse(item.randomedAttributes);
+        items[i] = item;
+    }
+    return items;
+}
+
+function CreateEmptyItem(id, playerId, dataId, amount)
+{
+    newRewardEntry = {};
+    newRewardEntry.id = id;
+    newRewardEntry.playerId = playerId;
+    newRewardEntry.dataId = dataId;
+    newRewardEntry.amount = amount;
+    newRewardEntry.exp = 0;
+    newRewardEntry.equipItemId = '';
+    newRewardEntry.equipPosition = '';
+    newRewardEntry.randomedAttributes = '{}';
+    newRewardEntry.createdAt = 0;
+    newRewardEntry.updatedAt = 0;
+    return newRewardEntry;
 }

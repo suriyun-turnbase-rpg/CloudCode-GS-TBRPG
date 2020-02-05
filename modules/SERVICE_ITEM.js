@@ -156,7 +156,7 @@ function LevelUpItem(itemId, materials)
                 }
             }
             // Set API result
-            Spark.setScriptData("updateItems", updateItems);
+            Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
             Spark.setScriptData("deleteItemIds", deleteItemIds);
             Spark.setScriptData("updateCurrencies", updateCurrencies);
         }
@@ -312,7 +312,7 @@ function EvolveItem(itemId, materials)
                 }
             }
             // Set API result
-            Spark.setScriptData("updateItems", updateItems);
+            Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
             Spark.setScriptData("deleteItemIds", deleteItemIds);
             Spark.setScriptData("updateCurrencies", updateCurrencies);
         }
@@ -399,7 +399,7 @@ function SellItems(items)
     }
     var softCurrency = GetCurrency(playerId, softCurrencyId);
     updateCurrencies.push(softCurrency);
-    Spark.setScriptData("updateItems", updateItems);
+    Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
     Spark.setScriptData("deleteItemIds", deleteItemIds);
     Spark.setScriptData("updateCurrencies", updateCurrencies);
 }
@@ -462,7 +462,7 @@ function EquipItem(characterId, equipmentId, equipPosition)
                 equipItemDoc.persistor().persist().error();
             }
             updateItems.push(equipment);
-            Spark.setScriptData("updateItems", updateItems);
+            Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
         }
     }
 }
@@ -489,7 +489,7 @@ function UnEquipItem(equipmentId)
         unEquipItemDoc.setData(unEquipItem);
         unEquipItemDoc.persistor().persist().error();
         updateItems.push(unEquipItem);
-        Spark.setScriptData("updateItems", updateItems);
+        Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
     }
 }
 
@@ -582,12 +582,7 @@ function OpenLootBox(lootBoxDataId, packIndex)
                 var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
                 if (addItemsResult.success)
                 {
-                    var newRewardEntry = {
-                        playerId : playerId,
-                        dataId : rewardItem.id,
-                        amount : rewardItem.amount
-                    };
-                    rewardItems.push(newRewardEntry);
+                    rewardItems.push(CreateEmptyItem(i, playerId, rewardItem.id, rewardItem.amount));
 
                     var countCreateItems = addItemsResult.createItems.length;
                     var countUpdateItems = addItemsResult.updateItems.length;
@@ -614,9 +609,9 @@ function OpenLootBox(lootBoxDataId, packIndex)
             }
             // End reward items loop
         }
-        Spark.setScriptData("rewardItems", rewardItems);
-        Spark.setScriptData("createItems", createItems);
-        Spark.setScriptData("updateItems", updateItems);
+        Spark.setScriptData("rewardItems", SetItemsAttributes(rewardItems));
+        Spark.setScriptData("createItems", SetItemsAttributes(createItems));
+        Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
         Spark.setScriptData("deleteItemIds", deleteItemIds);
         Spark.setScriptData("updateCurrencies", updateCurrencies);
     }
@@ -657,19 +652,19 @@ function OpenInGamePackage(inGamePackageDataId)
             switch (requirementType)
             {
                 case ENUM_IN_GAME_PACKAGE_REQUIREMENT_TYPE_SOFT_CURRENCY:
-                    player.debit(softCurrencyId, price, "Open In-Game Package [" + inGamePackageDataId + ", " + packIndex + "]");
+                    player.debit(softCurrencyId, price, "Open In-Game Package [" + inGamePackageDataId + "]");
                     break;
                 case ENUM_IN_GAME_PACKAGE_REQUIREMENT_TYPE_HARD_CURRENCY:
-                    player.debit(hardCurrencyId, price, "Open In-Game Package [" + inGamePackageDataId + ", " + packIndex + "]");
+                    player.debit(hardCurrencyId, price, "Open In-Game Package [" + inGamePackageDataId + "]");
                     break;
             }
 
             // Increase soft currency
-            player.credit(softCurrencyId, rewardSoftCurrency, "Open In-Game Package - Soft Currency Reward [" + inGamePackageDataId + ", " + packIndex + "]");
+            player.credit(softCurrencyId, rewardSoftCurrency, "Open In-Game Package - Soft Currency Reward [" + inGamePackageDataId + "]");
             var softCurrency = GetCurrency(playerId, softCurrencyId);
             updateCurrencies.push(softCurrency);
             // Increase hard currency
-            player.credit(hardCurrencyId, rewardHardCurrency, "Open In-Game Package - Hard Currency Reward [" + inGamePackageDataId + ", " + packIndex + "]");
+            player.credit(hardCurrencyId, rewardHardCurrency, "Open In-Game Package - Hard Currency Reward [" + inGamePackageDataId + "]");
             var hardCurrency = GetCurrency(playerId, hardCurrencyId);
             updateCurrencies.push(hardCurrency);
             
@@ -685,12 +680,7 @@ function OpenInGamePackage(inGamePackageDataId)
                 var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
                 if (addItemsResult.success)
                 {
-                    var newRewardEntry = {
-                        playerId : playerId,
-                        dataId : rewardItem.id,
-                        amount : rewardItem.amount
-                    };
-                    rewardItems.push(newRewardEntry);
+                    rewardItems.push(CreateEmptyItem(i, playerId, rewardItem.id, rewardItem.amount));
 
                     var countCreateItems = addItemsResult.createItems.length;
                     var countUpdateItems = addItemsResult.updateItems.length;
@@ -717,11 +707,11 @@ function OpenInGamePackage(inGamePackageDataId)
             }
             // End reward items loop
         }
-        Spark.setScriptData("rewardItems", rewardItems);
+        Spark.setScriptData("rewardItems", SetItemsAttributes(rewardItems));
         Spark.setScriptData("rewardSoftCurrency", rewardSoftCurrency);
         Spark.setScriptData("rewardHardCurrency", rewardHardCurrency);
-        Spark.setScriptData("createItems", createItems);
-        Spark.setScriptData("updateItems", updateItems);
+        Spark.setScriptData("createItems", SetItemsAttributes(createItems));
+        Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
         Spark.setScriptData("deleteItemIds", deleteItemIds);
         Spark.setScriptData("updateCurrencies", updateCurrencies);
     }
@@ -794,12 +784,7 @@ function EarnAchievementReward(achievementId)
                     var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
                     if (addItemsResult.success)
                     {
-                        var newRewardEntry = {
-                            playerId : playerId,
-                            dataId : rewardItem.id,
-                            amount : rewardItem.amount
-                        };
-                        rewardItems.push(newRewardEntry);
+                        rewardItems.push(CreateEmptyItem(i, playerId, rewardItem.id, rewardItem.amount));
 
                         var countCreateItems = addItemsResult.createItems.length;
                         var countUpdateItems = addItemsResult.updateItems.length;
@@ -830,9 +815,9 @@ function EarnAchievementReward(achievementId)
                 Spark.setScriptData("rewardPlayerExp", rewardPlayerExp);
                 Spark.setScriptData("rewardSoftCurrency", rewardSoftCurrency);
                 Spark.setScriptData("rewardHardCurrency", rewardHardCurrency);
-                Spark.setScriptData("rewardItems", rewardItems);
-                Spark.setScriptData("createItems", createItems);
-                Spark.setScriptData("updateItems", updateItems);
+                Spark.setScriptData("rewardItems", SetItemsAttributes(rewardItems));
+                Spark.setScriptData("createItems", SetItemsAttributes(createItems));
+                Spark.setScriptData("updateItems", SetItemsAttributes(updateItems));
                 Spark.setScriptData("deleteItemIds", deleteItemIds);
                 Spark.setScriptData("updateCurrencies", updateCurrencies);
                 Spark.setScriptData("player", GetPlayer(playerId));

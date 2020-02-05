@@ -188,12 +188,7 @@ function FinishStage(session, battleResult, deadCharacters)
                     var addItemsResult = AddItems(playerId, rewardItem.id, rewardItem.amount);
                     if (addItemsResult.success)
                     {
-                        var newRewardEntry = {
-                            playerId : playerId,
-                            dataId : rewardItem.id,
-                            amount : rewardItem.amount
-                        };
-                        rewardItems.push(newRewardEntry);
+                        rewardItems.push(CreateEmptyItem(i, playerId, rewardItem.id, rewardItem.amount));
 
                         var countCreateItems = addItemsResult.createItems.length;
                         var countUpdateItems = addItemsResult.updateItems.length;
@@ -233,9 +228,9 @@ function FinishStage(session, battleResult, deadCharacters)
                 apiResult = HelperClearStage(apiResult, player, playerId, stage, rating);
             }
             // Set API result
-            Spark.setScriptData("rewardItems", apiResult.rewardItems);
-            Spark.setScriptData("createItems", apiResult.createItems);
-            Spark.setScriptData("updateItems", apiResult.updateItems);
+            Spark.setScriptData("rewardItems", SetItemsAttributes(apiResult.rewardItems));
+            Spark.setScriptData("createItems", SetItemsAttributes(apiResult.createItems));
+            Spark.setScriptData("updateItems", SetItemsAttributes(apiResult.updateItems));
             Spark.setScriptData("deleteItemIds", apiResult.deleteItemIds);
             Spark.setScriptData("updateCurrencies", apiResult.updateCurrencies);
             Spark.setScriptData("rewardPlayerExp", apiResult.rewardPlayerExp);
@@ -247,7 +242,7 @@ function FinishStage(session, battleResult, deadCharacters)
             Spark.setScriptData("firstClearRewardPlayerExp", apiResult.firstClearRewardPlayerExp);
             Spark.setScriptData("firstClearRewardSoftCurrency", apiResult.firstClearRewardSoftCurrency);
             Spark.setScriptData("firstClearRewardHardCurrency", apiResult.firstClearRewardHardCurrency);
-            Spark.setScriptData("firstClearRewardItems", apiResult.firstClearRewardItems);
+            Spark.setScriptData("firstClearRewardItems", SetItemsAttributes(apiResult.firstClearRewardItems));
             Spark.setScriptData("player", GetPlayer(playerId));
         }
     }

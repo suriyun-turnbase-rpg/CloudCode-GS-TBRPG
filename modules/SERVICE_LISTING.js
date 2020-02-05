@@ -65,7 +65,7 @@ function GetItemList()
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
-    Spark.setScriptData("list", GetItemListInternal(playerId));
+    Spark.setScriptData("list", SetItemsAttributes(GetItemListInternal(playerId)));
 }
 
 function GetItemListInternal(playerId)
