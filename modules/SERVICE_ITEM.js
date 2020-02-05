@@ -711,3 +711,33 @@ function EarnAchievementReward(achievementId)
         }
     }
 }
+
+function ConvertHardCurrency(requireHardCurrency)
+{
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    var softCurrencyId = gameDatabase.currencies.SOFT_CURRENCY;
+    var hardCurrencyId = gameDatabase.currencies.HARD_CURRENCY;
+    if (requireHardCurrency > player.getBalance(hardCurrencyId))
+    {
+        Spark.setScriptData("error", ERROR_NOT_ENOUGH_HARD_CURRENCY);
+    }
+    else
+    {
+        var updateCurrencies = [];
+
+        player.debit(hardCurrencyId, requireHardCurrency, "Convert hard currency: " + requireHardCurrency);
+        var hardCurrency = GetCurrency(playerId, hardCurrencyId);
+        updateCurrencies.push(hardCurrency);
+
+        var receiveSoftCurrency = gameDatabase.hardToSoftCurrencyConversion * requireHardCurrency;
+
+        player.credit(softCurrencyId, receiveSoftCurrency, "Convert hard currency: " + requireHardCurrency + " Receives: " + receiveSoftCurrency);
+        var softCurrency = GetCurrency(playerId, softCurrencyId);
+        updateCurrencies.push(softCurrency);
+        
+        Spark.setScriptData("updateCurrencies", updateCurrencies);
+        Spark.setScriptData("requireHardCurrency", requireHardCurrency);
+        Spark.setScriptData("receiveSoftCurrency", receiveSoftCurrency);
+    }
+}

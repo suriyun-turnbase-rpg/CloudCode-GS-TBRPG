@@ -174,3 +174,7 @@ else if (target === "EarnAchievementReward")
 {
     EarnAchievementReward(data.achievementId);
 }
+else if (target === "ConvertHardCurrency")
+{
+    ConvertHardCurrency(data.requireHardCurrency);
+}
