@@ -776,35 +776,35 @@ function GetItemRandomAttributes(dataId)
     var tempIntVal = 0;
     var tempFloatVal = 0;
     // Hp
-    tempIntVal = RandomRange(minHp, maxHp);
+    tempIntVal = Math.ceil(RandomRange(minHp, maxHp));
     if (tempIntVal != 0)
         randomingAmounts[ENUM_HP] = tempIntVal;
     // PAtk
-    tempIntVal = RandomRange(minPAtk, maxPAtk);
+    tempIntVal = Math.ceil(RandomRange(minPAtk, maxPAtk));
     if (tempIntVal != 0)
         randomingAmounts[ENUM_PATK] = tempIntVal;
     // PDef
-    tempIntVal = RandomRange(minPDef, maxPDef);
+    tempIntVal = Math.ceil(RandomRange(minPDef, maxPDef));
     if (tempIntVal != 0)
         randomingAmounts[ENUM_PDEF] = tempIntVal;
     // MAtk
-    tempIntVal = RandomRange(minMAtk, maxMAtk);
+    tempIntVal = Math.ceil(RandomRange(minMAtk, maxMAtk));
     if (tempIntVal != 0)
         randomingAmounts[ENUM_MATK] = tempIntVal;
     // MDef
-    tempIntVal = RandomRange(minMDef, maxMDef);
+    tempIntVal = Math.ceil(RandomRange(minMDef, maxMDef));
     if (tempIntVal != 0)
         randomingAmounts[ENUM_MDEF] = tempIntVal;
     // Spd
-    tempIntVal = RandomRange(minSpd, maxSpd);
+    tempIntVal = Math.ceil(RandomRange(minSpd, maxSpd));
     if (tempIntVal != 0)
         randomingAmounts[ENUM_SPD] = tempIntVal;
     // Eva
-    tempIntVal = RandomRange(minEva, maxEva);
+    tempIntVal = Math.ceil(RandomRange(minEva, maxEva));
     if (tempIntVal != 0)
         randomingAmounts[ENUM_EVA] = tempIntVal;
     // Acc
-    tempIntVal = RandomRange(minAcc, maxAcc);
+    tempIntVal = Math.ceil(RandomRange(minAcc, maxAcc));
     if (tempIntVal != 0)
         randomingAmounts[ENUM_ACC] = tempIntVal;
     // Crit Chance
@@ -829,53 +829,38 @@ function GetItemRandomAttributes(dataId)
         randomingAmounts[ENUM_RESISTANCE_CHANCE] = tempFloatVal;
     
     var shufflingKeys = ShuffleArray(Object.keys(randomingAmounts));
+
     tempIntVal = RandomRange(minType, maxType);
     if (shufflingKeys.length < tempIntVal)
         tempIntVal = shufflingKeys.length;
 
     for (var i = 0; i < tempIntVal; ++i) {
-        switch (shufflingKeys[i])
-        {
-            case ENUM_HP:
-                result.hp = randomingAmounts[shufflingKeys[i]];
-            break;
-            case ENUM_PATK:
-                result.pAtk = randomingAmounts[shufflingKeys[i]];
-            break;
-            case ENUM_PDEF:
-                result.pDef = randomingAmounts[shufflingKeys[i]];
-            break;
-            case ENUM_MATK:
-                result.mAtk = randomingAmounts[shufflingKeys[i]];
-            break;
-            case ENUM_MDEF:
-                result.mDef = randomingAmounts[shufflingKeys[i]];
-            break;
-            case ENUM_SPD:
-                result.spd = randomingAmounts[shufflingKeys[i]];
-            break;
-            case ENUM_EVA:
-                result.eva = randomingAmounts[shufflingKeys[i]];
-            break;
-            case ENUM_ACC:
-                result.acc = randomingAmounts[shufflingKeys[i]];
-            break;
-            case ENUM_CRIT_CHANCE:
-                result.critChance = randomingAmounts[shufflingKeys[i]];
-            break;
-            case ENUM_CRIT_DAMAGE_RATE:
-                result.critDamageRate = randomingAmounts[shufflingKeys[i]];
-            break;
-            case ENUM_BLOCK_CHANCE:
-                result.blockChance = randomingAmounts[shufflingKeys[i]];
-            break;
-            case ENUM_BLOCK_DAMAGE_RATE:
-                result.blockDamageRate = randomingAmounts[shufflingKeys[i]];
-            break;
-            case ENUM_RESISTANCE_CHANCE:
-                result.resistanceChance = randomingAmounts[shufflingKeys[i]];
-            break;
-        }
+        if (shufflingKeys[i] == ENUM_HP)
+            result.hp = randomingAmounts[shufflingKeys[i]];
+        if (shufflingKeys[i] == ENUM_PATK)
+            result.pAtk = randomingAmounts[shufflingKeys[i]];
+        if (shufflingKeys[i] == ENUM_PDEF)
+            result.pDef = randomingAmounts[shufflingKeys[i]];
+        if (shufflingKeys[i] == ENUM_MATK)
+            result.mAtk = randomingAmounts[shufflingKeys[i]];
+        if (shufflingKeys[i] == ENUM_MDEF)
+            result.mDef = randomingAmounts[shufflingKeys[i]];
+        if (shufflingKeys[i] == ENUM_SPD)
+            result.spd = randomingAmounts[shufflingKeys[i]];
+        if (shufflingKeys[i] == ENUM_EVA)
+            result.eva = randomingAmounts[shufflingKeys[i]];
+        if (shufflingKeys[i] == ENUM_ACC)
+            result.acc = randomingAmounts[shufflingKeys[i]];
+        if (shufflingKeys[i] == ENUM_CRIT_CHANCE)
+            result.critChance = randomingAmounts[shufflingKeys[i]];
+        if (shufflingKeys[i] == ENUM_CRIT_DAMAGE_RATE)
+            result.critDamageRate = randomingAmounts[shufflingKeys[i]];
+        if (shufflingKeys[i] == ENUM_BLOCK_CHANCE)
+            result.blockChance = randomingAmounts[shufflingKeys[i]];
+        if (shufflingKeys[i] == ENUM_BLOCK_DAMAGE_RATE)
+            result.blockDamageRate = randomingAmounts[shufflingKeys[i]];
+        if (shufflingKeys[i] == ENUM_RESISTANCE_CHANCE)
+            result.resistanceChance = randomingAmounts[shufflingKeys[i]];
     }
 
     return result;
