@@ -419,9 +419,11 @@ function CreatePlayerAchievement(playerId, dataId)
 function SetNewPlayerData(playerId)
 {
     var firstFormation = gameDatabase.formations[0];
+    var lastFormation = gameDatabase.formations[gameDatabase.formations.length - 1];
     var player = Spark.loadPlayer(playerId);
     player.setScriptData("exp", 0);
     player.setScriptData("selectedFormation", firstFormation);
+    player.setScriptData("selectedArenaFormation", lastFormation);
     
     // Clear Stage
     var clearStageCursor = API.queryItems(colPlayerClearStage, API.S("playerId").eq(playerId), API.sort("dataId", false)).cursor();
@@ -505,6 +507,7 @@ function SetNewPlayerData(playerId)
                 newItemEntry.persistor().persist().error();
                 HelperUnlockItem(playerId, createItem.dataId);
                 HelperSetFormation(playerId, createItem.id, firstFormation, i);
+                HelperSetFormation(playerId, createItem.id, lastFormation, i);
             }
             for (var j = 0; j < countUpdateItems; ++j)
             {
@@ -639,7 +642,7 @@ function GetStamina(playerId, dataId)
 function GetPlayer(playerId)
 {
     var player = Spark.loadPlayer(playerId);
-    return {
+    var result = {
         "id" : playerId,
         "profileName" : player.getDisplayName(),
         "exp" : player.getScriptData("exp"),
@@ -649,6 +652,13 @@ function GetPlayer(playerId)
         "highestArenaRank" : player.getScriptData("highestArenaRank"),
         "highestArenaRankCurrentSeason" : player.getScriptData("highestArenaRankCurrentSeason")
     };
+    if (!result.selectedFormation) {
+        result.selectedFormation = gameDatabase.formations[0];
+    }
+    if (!result.selectedArenaFormation) {
+        result.selectedArenaFormation = gameDatabase.formations[gameDatabase.formations.length - 1];
+    }
+    return result;
 }
 
 function GetItemRandomAttributes(dataId)
