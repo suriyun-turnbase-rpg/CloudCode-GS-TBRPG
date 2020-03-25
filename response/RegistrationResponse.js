@@ -35,31 +35,36 @@ var API = Spark.getGameDataService();
 var colPlayer = "player";
 var userId = Spark.getData().userId;
 var newPlayer = Spark.getData().newPlayer;
-var displayName = Spark.loadPlayer(userId).getDisplayName();
+var displayName = "";
 
-if (newPlayer)
+if (userId)
 {
-    SetNewPlayerData(userId);
-    UpdateAllPlayerStamina(userId);
-}
+    displayName = Spark.loadPlayer(userId).getDisplayName();
 
-var playerQueryResult = API.queryItems(
-    colPlayer, 
-    API.S("playerId").eq(userId));
-var playerResult = playerQueryResult.cursor();
-if (!playerResult.hasNext())
-{
-    var newEntry = API.createItem(colPlayer, userId);
-    newEntry.setData({
-        "playerId" : userId,
-        "displayName" : displayName
-    });
-    newEntry.persistor().persist().error();
-} else {
-    var entry = playerResult.next();
-    entry.setData({
-        "playerId" : userId,
-        "displayName" : displayName
-    });
-    entry.persistor().persist().error();
+    if (newPlayer)
+    {
+        SetNewPlayerData(userId);
+        UpdateAllPlayerStamina(userId);
+    }
+
+    var playerQueryResult = API.queryItems(
+        colPlayer, 
+        API.S("playerId").eq(userId));
+    var playerResult = playerQueryResult.cursor();
+    if (!playerResult.hasNext())
+    {
+        var newEntry = API.createItem(colPlayer, userId);
+        newEntry.setData({
+            "playerId" : userId,
+            "displayName" : displayName
+        });
+        newEntry.persistor().persist().error();
+    } else {
+        var entry = playerResult.next();
+        entry.setData({
+            "playerId" : userId,
+            "displayName" : displayName
+        });
+        entry.persistor().persist().error();
+    }
 }
