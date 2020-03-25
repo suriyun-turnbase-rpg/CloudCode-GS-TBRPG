@@ -162,6 +162,10 @@ else if (target === "FriendDelete")
 {
     FriendDelete(data.targetPlayerId);
 }
+else if (target === "FriendRequestDelete")
+{
+    FriendRequestDelete(data.targetPlayerId);
+}
 else if (target === "ServiceTime")
 {
     ServiceTime();

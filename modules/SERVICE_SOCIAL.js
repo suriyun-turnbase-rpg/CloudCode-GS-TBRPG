@@ -147,8 +147,22 @@ function FriendDelete(targetPlayerId)
 {
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
-    var requestQueryResult = API.queryItems(
+    var friendQueryResult = API.queryItems(
         colPlayerFriend, 
+        API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)));
+    var friendResult = friendQueryResult.cursor();
+    if (friendResult.hasNext())
+    {
+        friendResult.next().delete();
+    }
+}
+
+function FriendRequestDelete(targetPlayerId)
+{
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    var requestQueryResult = API.queryItems(
+        colPlayerFriendRequest, 
         API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)));
     var requestResult = requestQueryResult.cursor();
     if (requestResult.hasNext())
