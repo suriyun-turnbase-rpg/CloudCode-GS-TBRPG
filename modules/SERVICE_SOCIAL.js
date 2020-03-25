@@ -30,6 +30,7 @@
 var API = Spark.getGameDataService();
 var colPlayerFriend = "playerFriend";
 var colPlayerFriendRequest = "playerFriendRequest";
+var colPlayer = "player";
 
 function FriendRequest(targetPlayerId)
 {
@@ -158,5 +159,28 @@ function FriendDelete(targetPlayerId)
 
 function FindUser(displayName)
 {
-    
+    var maximum = 50;
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    var list = [];
+    var queryResult = API.queryItems(colPlayer, API.S("displayName").eq(displayName));
+    var result = queryResult.cursor();
+    while (result.hasNext())
+    {
+        var entry = result.next();
+        var data = entry.getData();
+        var targetPlayerId = data.playerId;
+        if (playerId === targetPlayerId)
+        {
+            continue;
+        }
+        var socialPlayer = GetSocialPlayer(playerId, targetPlayerId);
+        if (socialPlayer)
+            list.push(socialPlayer);
+        if (list.length >= maximum)
+        {
+            break;
+        }
+    }
+    Spark.setScriptData("list", list);
 }

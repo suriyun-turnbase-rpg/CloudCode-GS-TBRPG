@@ -35,6 +35,7 @@ var API = Spark.getGameDataService();
 var colPlayer = "player";
 var userId = Spark.getData().userId;
 var newPlayer = Spark.getData().newPlayer;
+var displayName = Spark.loadPlayer(userId).getDisplayName();
 
 if (newPlayer)
 {
@@ -50,7 +51,8 @@ if (!playerResult.hasNext())
 {
     var newEntry = API.createItem(colPlayer, userId);
     newEntry.setData({
-        "playerId" : userId
+        "playerId" : userId,
+        "displayName" : displayName
     });
     newEntry.persistor().persist().error();
 }
