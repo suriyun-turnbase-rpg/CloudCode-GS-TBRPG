@@ -780,6 +780,22 @@ function GetItemRandomAttributes(dataId)
     if (randomAttributes.maxResistanceChance) {
         maxResistanceChance = randomAttributes.maxResistanceChance;
     }
+    var minBloodStealRateByPAtk = 0;
+    if (randomAttributes.minBloodStealRateByPAtk) {
+        minBloodStealRateByPAtk = randomAttributes.minBloodStealRateByPAtk;
+    }
+    var maxBloodStealRateByPAtk = 0;
+    if (randomAttributes.maxBloodStealRateByPAtk) {
+        maxBloodStealRateByPAtk = randomAttributes.maxBloodStealRateByPAtk;
+    }
+    var minBloodStealRateByMAtk = 0;
+    if (randomAttributes.minBloodStealRateByMAtk) {
+        minBloodStealRateByMAtk = randomAttributes.minBloodStealRateByMAtk;
+    }
+    var maxBloodStealRateByMAtk = 0;
+    if (randomAttributes.maxBloodStealRateByMAtk) {
+        maxBloodStealRateByMAtk = randomAttributes.maxBloodStealRateByMAtk;
+    }
     
     var result = {};
     var randomingAmounts = {};
@@ -787,57 +803,80 @@ function GetItemRandomAttributes(dataId)
     var tempFloatVal = 0;
     // Hp
     tempIntVal = Math.ceil(RandomRange(minHp, maxHp));
-    if (tempIntVal != 0)
+    if (tempIntVal != 0) {
         randomingAmounts[ENUM_HP] = tempIntVal;
+    }
     // PAtk
     tempIntVal = Math.ceil(RandomRange(minPAtk, maxPAtk));
-    if (tempIntVal != 0)
+    if (tempIntVal != 0) {
         randomingAmounts[ENUM_PATK] = tempIntVal;
+    }
     // PDef
     tempIntVal = Math.ceil(RandomRange(minPDef, maxPDef));
-    if (tempIntVal != 0)
+    if (tempIntVal != 0) {
         randomingAmounts[ENUM_PDEF] = tempIntVal;
+    }
     // MAtk
     tempIntVal = Math.ceil(RandomRange(minMAtk, maxMAtk));
-    if (tempIntVal != 0)
+    if (tempIntVal != 0) {
         randomingAmounts[ENUM_MATK] = tempIntVal;
+    }
     // MDef
     tempIntVal = Math.ceil(RandomRange(minMDef, maxMDef));
-    if (tempIntVal != 0)
+    if (tempIntVal != 0) {
         randomingAmounts[ENUM_MDEF] = tempIntVal;
+    }
     // Spd
     tempIntVal = Math.ceil(RandomRange(minSpd, maxSpd));
-    if (tempIntVal != 0)
+    if (tempIntVal != 0) {
         randomingAmounts[ENUM_SPD] = tempIntVal;
+    }
     // Eva
     tempIntVal = Math.ceil(RandomRange(minEva, maxEva));
-    if (tempIntVal != 0)
+    if (tempIntVal != 0) {
         randomingAmounts[ENUM_EVA] = tempIntVal;
+    }
     // Acc
     tempIntVal = Math.ceil(RandomRange(minAcc, maxAcc));
-    if (tempIntVal != 0)
+    if (tempIntVal != 0) {
         randomingAmounts[ENUM_ACC] = tempIntVal;
+    }
     // Crit Chance
     tempFloatVal = RandomRange(minCritChance, maxCritChance);
-    if (tempFloatVal != 0)
+    if (tempFloatVal != 0) {
         randomingAmounts[ENUM_CRIT_CHANCE] = tempFloatVal;
+    }
     // Crit Damage Rate
     tempFloatVal = RandomRange(minCritDamageRate, maxCritDamageRate);
-    if (tempFloatVal != 0)
+    if (tempFloatVal != 0) {
         randomingAmounts[ENUM_CRIT_DAMAGE_RATE] = tempFloatVal;
+    }
     // Block Chance
     tempFloatVal = RandomRange(minBlockChance, maxBlockChance);
-    if (tempFloatVal != 0)
+    if (tempFloatVal != 0) {
         randomingAmounts[ENUM_BLOCK_CHANCE] = tempFloatVal;
+    }
     // Block Damage Rate
     tempFloatVal = RandomRange(minBlockDamageRate, maxBlockDamageRate);
-    if (tempFloatVal != 0)
+    if (tempFloatVal != 0) {
         randomingAmounts[ENUM_BLOCK_DAMAGE_RATE] = tempFloatVal;
+    }
     // Resistance
     tempFloatVal = RandomRange(minResistanceChance, maxResistanceChance);
-    if (tempFloatVal != 0)
+    if (tempFloatVal != 0) {
         randomingAmounts[ENUM_RESISTANCE_CHANCE] = tempFloatVal;
-    
+    }
+    // Blood Steal PATK
+    tempFloatVal = RandomRange(minBloodStealRateByPAtk, maxBloodStealRateByPAtk);
+    if (tempFloatVal != 0) {
+        randomingAmounts[ENUM_BLOOD_STEAL_RATE_BY_PATK] = tempFloatVal;
+    }
+    // Blood Steal MATK
+    tempFloatVal = RandomRange(minBloodStealRateByMAtk, maxBloodStealRateByMAtk);
+    if (tempFloatVal != 0) {
+        randomingAmounts[ENUM_BLOOD_STEAL_RATE_BY_MATK] = tempFloatVal;
+    }
+
     var shufflingKeys = ShuffleArray(Object.keys(randomingAmounts));
 
     tempIntVal = RandomRange(minType, maxType);
@@ -845,32 +884,51 @@ function GetItemRandomAttributes(dataId)
         tempIntVal = shufflingKeys.length;
 
     for (var i = 0; i < tempIntVal; ++i) {
-        if (shufflingKeys[i] == ENUM_HP)
+        if (shufflingKeys[i] == ENUM_HP) {
             result.hp = randomingAmounts[shufflingKeys[i]];
-        if (shufflingKeys[i] == ENUM_PATK)
+        }
+        if (shufflingKeys[i] == ENUM_PATK) {
             result.pAtk = randomingAmounts[shufflingKeys[i]];
-        if (shufflingKeys[i] == ENUM_PDEF)
+        }
+        if (shufflingKeys[i] == ENUM_PDEF) {
             result.pDef = randomingAmounts[shufflingKeys[i]];
-        if (shufflingKeys[i] == ENUM_MATK)
+        }
+        if (shufflingKeys[i] == ENUM_MATK) {
             result.mAtk = randomingAmounts[shufflingKeys[i]];
-        if (shufflingKeys[i] == ENUM_MDEF)
+        }
+        if (shufflingKeys[i] == ENUM_MDEF) {
             result.mDef = randomingAmounts[shufflingKeys[i]];
-        if (shufflingKeys[i] == ENUM_SPD)
+        }
+        if (shufflingKeys[i] == ENUM_SPD) {
             result.spd = randomingAmounts[shufflingKeys[i]];
-        if (shufflingKeys[i] == ENUM_EVA)
+        }
+        if (shufflingKeys[i] == ENUM_EVA) {
             result.eva = randomingAmounts[shufflingKeys[i]];
-        if (shufflingKeys[i] == ENUM_ACC)
+        }
+        if (shufflingKeys[i] == ENUM_ACC) {
             result.acc = randomingAmounts[shufflingKeys[i]];
-        if (shufflingKeys[i] == ENUM_CRIT_CHANCE)
+        }
+        if (shufflingKeys[i] == ENUM_CRIT_CHANCE) {
             result.critChance = randomingAmounts[shufflingKeys[i]];
-        if (shufflingKeys[i] == ENUM_CRIT_DAMAGE_RATE)
+        }
+        if (shufflingKeys[i] == ENUM_CRIT_DAMAGE_RATE) {
             result.critDamageRate = randomingAmounts[shufflingKeys[i]];
-        if (shufflingKeys[i] == ENUM_BLOCK_CHANCE)
+        }
+        if (shufflingKeys[i] == ENUM_BLOCK_CHANCE) {
             result.blockChance = randomingAmounts[shufflingKeys[i]];
-        if (shufflingKeys[i] == ENUM_BLOCK_DAMAGE_RATE)
+        }
+        if (shufflingKeys[i] == ENUM_BLOCK_DAMAGE_RATE) {
             result.blockDamageRate = randomingAmounts[shufflingKeys[i]];
-        if (shufflingKeys[i] == ENUM_RESISTANCE_CHANCE)
+        }
+        if (shufflingKeys[i] == ENUM_RESISTANCE_CHANCE) {
             result.resistanceChance = randomingAmounts[shufflingKeys[i]];
+        }
+        if (shufflingKeys[i] == ENUM_BLOOD_STEAL_RATE_BY_PATK) {
+            result.bloodStealRateByPAtk = randomingAmounts[shufflingKeys[i]];
+        }
+        if (shufflingKeys[i] == ENUM_BLOOD_STEAL_RATE_BY_MATK) {
+            result.bloodStealRateByMAtk = randomingAmounts[shufflingKeys[i]];
+        }
     }
 
     return result;
