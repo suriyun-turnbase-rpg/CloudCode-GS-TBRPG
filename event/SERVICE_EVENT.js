@@ -142,6 +142,10 @@ else if (target === "GetFriendRequestList")
 {
     GetFriendRequestList();
 }
+else if (target === "GetPendingRequestList")
+{
+    GetPendingRequestList();
+}
 else if (target === "FriendRequest")
 {
     FriendRequest(data.targetPlayerId);

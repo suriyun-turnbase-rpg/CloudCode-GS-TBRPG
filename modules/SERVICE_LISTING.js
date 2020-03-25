@@ -274,6 +274,34 @@ function GetFriendRequestList()
     Spark.setScriptData("list", list);
 }
 
+function GetPendingRequestList()
+{
+    var maximum = 50;
+    var player = Spark.getPlayer();
+    var playerId = player.getPlayerId();
+    var list = [];
+    var queryResult = API.queryItems(colPlayerFriendRequest, API.S("playerId").eq(playerId), API.sort("timestamp", false));
+    var result = queryResult.cursor();
+    while (result.hasNext())
+    {
+        var entry = result.next();
+        var data = entry.getData();
+        var targetPlayerId = data.targetPlayerId;
+        if (playerId === targetPlayerId)
+        {
+            continue;
+        }
+        var socialPlayer = GetSocialPlayer(playerId, targetPlayerId);
+        if (socialPlayer)
+            list.push(socialPlayer);
+        if (list.length >= maximum)
+        {
+            break;
+        }
+    }
+    Spark.setScriptData("list", list);
+}
+
 function GetOpponentList()
 {
     var maximum = 25;
