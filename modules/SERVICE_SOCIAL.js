@@ -163,7 +163,7 @@ function FindUser(displayName)
     var player = Spark.getPlayer();
     var playerId = player.getPlayerId();
     var list = [];
-    var queryResult = API.queryItems(colPlayer, API.S("displayName").eq(displayName));
+    var queryResult = API.queryItems(colPlayer, API.S("displayName").startsWith(displayName));
     var result = queryResult.cursor();
     while (result.hasNext())
     {
