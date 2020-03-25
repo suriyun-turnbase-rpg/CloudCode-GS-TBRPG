@@ -55,4 +55,11 @@ if (!playerResult.hasNext())
         "displayName" : displayName
     });
     newEntry.persistor().persist().error();
+} else {
+    var entry = playerResult.next();
+    entry.setData({
+        "playerId" : userId,
+        "displayName" : displayName
+    });
+    entry.persistor().persist().error();
 }
