@@ -40,10 +40,10 @@ function StartDuel(targetPlayerId)
         colPlayerBattle, 
         API.S("playerId").eq(playerId).and(API.N("battleResult").eq(ENUM_BATTLE_RESULT_NONE)).and(API.N("battleType").eq(ENUM_BATTLE_TYPE_ARENA)),
         API.sort("id", false));
-    var result = queryResult.cursor();
-    while (result.hasNext())
+    var battleCursor = queryResult.cursor();
+    while (battleCursor && battleCursor.hasNext())
     {
-        result.next().delete();
+        battleCursor.next().delete();
     }
     if (!DecreasePlayerStamina(playerId, "ARENA", 1))
     {
@@ -89,14 +89,14 @@ function FinishDuel(session, battleResult, deadCharacters)
         colPlayerBattle, 
         API.S("playerId").eq(playerId).and(API.S("session").eq(session)),
         API.sort("id", false));
-    var result = queryResult.cursor();
-    if (!result.hasNext())
+    var battleCursor = queryResult.cursor();
+    if (!battleCursor || !battleCursor.hasNext())
     {
         Spark.setScriptData("error", ERROR_INVALID_BATTLE_SESSION);
     }
     else
     {
-        var battleEntry = result.next();
+        var battleEntry = battleCursor.next();
         var battle = battleEntry.getData();
         // Prepare results
         var rewardItems = [];

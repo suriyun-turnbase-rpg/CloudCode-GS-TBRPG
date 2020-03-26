@@ -427,31 +427,31 @@ function SetNewPlayerData(playerId)
     
     // Clear Stage
     var clearStageCursor = API.queryItems(colPlayerClearStage, API.S("playerId").eq(playerId), API.sort("dataId", false)).cursor();
-    while (clearStageCursor.hasNext())
+    while (clearStageCursor && clearStageCursor.hasNext())
     {
         clearStageCursor.next().delete();
     }
     // Formation
     var formationCursor = API.queryItems(colPlayerFormation, API.S("playerId").eq(playerId), API.sort("dataId", false)).cursor();
-    while (formationCursor.hasNext())
+    while (formationCursor && formationCursor.hasNext())
     {
         formationCursor.next().delete();
     }
     // Item
     var itemCursor = API.queryItems(colPlayerItem, API.S("playerId").eq(playerId), API.sort("dataId", false)).cursor();
-    while (itemCursor.hasNext())
+    while (itemCursor && itemCursor.hasNext())
     {
         itemCursor.next().delete();
     }
     // Stamina
     var staminaCursor = API.queryItems(colPlayerStamina, API.S("playerId").eq(playerId), API.sort("dataId", false)).cursor();
-    while (staminaCursor.hasNext())
+    while (staminaCursor && staminaCursor.hasNext())
     {
         staminaCursor.next().delete();
     }
     // Unlock Item
     var unlockItemCursor = API.queryItems(colPlayerUnlockItem, API.S("playerId").eq(playerId), API.sort("dataId", false)).cursor();
-    while (unlockItemCursor.hasNext())
+    while (unlockItemCursor && unlockItemCursor.hasNext())
     {
         unlockItemCursor.next().delete();
     }
@@ -624,7 +624,7 @@ function GetStamina(playerId, dataId)
         API.sort("id", false));
     var result = queryResult.cursor();
     var stamina;
-    if (!result.hasNext())
+    if (!result || !result.hasNext())
     {
         stamina = CreatePlayerStamina(playerId, dataId);
         var id = stamina.id;
@@ -945,12 +945,12 @@ function AddItems(playerId, dataId, amount)
         colPlayerItem,
         API.S("playerId").eq(playerId).and(API.S("dataId").eq(dataId)).and(API.N("amount").lt(maxStack)),
         API.sort("id", false));
-    var oldEntries = queryResult.cursor();
+    var oldResultCursor = queryResult.cursor();
     var createItems = [];
     var updateItems = [];
-    while (oldEntries.hasNext())
+    while (oldResultCursor && oldResultCursor.hasNext())
     {
-        var entry = oldEntries.next().getData();
+        var entry = oldResultCursor.next().getData();
         var sumAmount = entry.amount + amount;
         if (sumAmount > maxStack)
         {
@@ -995,10 +995,10 @@ function HelperSetFormation(playerId, characterId, formationName, position)
     {
         var oldQueryResult = API.queryItems(colPlayerFormation,
             API.S("playerId").eq(playerId));
-        var oldResult = oldQueryResult.cursor();
-        while (oldResult.hasNext())
+        var oldResultCursor = oldQueryResult.cursor();
+        while (oldResultCursor && oldResultCursor.hasNext())
         {
-            var entry = oldResult.next();
+            var entry = oldResultCursor.next();
             var entryData = entry.getData();
             if (entryData.itemId == characterId && entryData.dataId == formationName)
             {
@@ -1193,13 +1193,13 @@ function QueryUpdateAchievement(updateResult)
 function GetFormationCharacterIds(playerId, playerSelectedFormation)
 {
     var characterIds = [];
-    var formationsQueryResult = API.queryItems(
+    var formationQueryResult = API.queryItems(
         colPlayerFormation, 
         API.S("playerId").eq(playerId));
-    var formationsResult = formationsQueryResult.cursor();
-    while (formationsResult.hasNext())
+    var formationCursor = formationQueryResult.cursor();
+    while (formationCursor && formationCursor.hasNext())
     {
-        var formationEntry = formationsResult.next();
+        var formationEntry = formationCursor.next();
         var formation = formationEntry.getData();
         if (formation.dataId == playerSelectedFormation && formation.itemId)
         {
@@ -1229,13 +1229,13 @@ function GetFormationCharacter(playerId, playerSelectedFormation)
 function GetLeaderCharacter(playerId, playerSelectedFormation)
 {
     var characterData = undefined;
-    var formationsQueryResult = API.queryItems(
+    var formationQueryResult = API.queryItems(
         colPlayerFormation, 
         API.S("playerId").eq(playerId));
-    var formationsResult = formationsQueryResult.cursor();
-    while (formationsResult.hasNext())
+    var formationCursor = formationQueryResult.cursor();
+    while (formationCursor.hasNext())
     {
-        var formationEntry = formationsResult.next();
+        var formationEntry = formationCursor.next();
         var formation = formationEntry.getData();
         if (formation.dataId == playerSelectedFormation && formation.itemId)
         {
@@ -1287,8 +1287,8 @@ function GetSocialPlayer(playerId, targetPlayerId)
     if (player)
     {
         var queryResult = API.queryItems(colPlayerFriend, API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)), API.sort("timestamp", false));
-        var result = queryResult.cursor();
-        var isFriend = result.hasNext();
+        var resultCursor = queryResult.cursor();
+        var isFriend = resultCursor && resultCursor.hasNext();
         var displayName = player.getDisplayName();
         var playerSelectedFormation = player.getScriptData("selectedFormation");
         var character = GetLeaderCharacter(targetPlayerId, playerSelectedFormation);
@@ -1313,8 +1313,8 @@ function GetPlayerIds()
     var playerId = player.getPlayerId();
     var playerIds = [];
     var queryResult = API.queryItems(colPlayer, API.S("playerId").ne(playerId));
-    var result = queryResult.cursor();
-    while (result.hasNext())
+    var resultCursor = queryResult.cursor();
+    while (resultCursor && resultCursor.hasNext())
     {
         var entry = result.next();
         var data = entry.getData();

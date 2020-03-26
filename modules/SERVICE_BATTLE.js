@@ -43,10 +43,10 @@ function StartStage(stageDataId, helperPlayerId)
         colPlayerBattle, 
         API.S("playerId").eq(playerId).and(API.N("battleResult").eq(ENUM_BATTLE_RESULT_NONE)).and(API.N("battleType").eq(ENUM_BATTLE_TYPE_STAGE)),
         API.sort("id", false));
-    var result = queryResult.cursor();
-    while (result.hasNext())
+    var battleCursor = queryResult.cursor();
+    while (battleCursor && battleCursor.hasNext())
     {
-        result.next().delete();
+        battleCursor.next().delete();
     }
     var stage = gameDatabase.stages[stageDataId];
     if (!stage)
@@ -86,14 +86,14 @@ function FinishStage(session, battleResult, deadCharacters)
         colPlayerBattle, 
         API.S("playerId").eq(playerId).and(API.S("session").eq(session)),
         API.sort("id", false));
-    var result = queryResult.cursor();
-    if (!result.hasNext())
+    var battleCursor = queryResult.cursor();
+    if (!battleCursor || !battleCursor.hasNext())
     {
         Spark.setScriptData("error", ERROR_INVALID_BATTLE_SESSION);
     }
     else
     {
-        var battleEntry = result.next();
+        var battleEntry = battleCursor.next();
         var battle = battleEntry.getData();
         if (!gameDatabase.stages[battle.dataId])
         {
@@ -305,10 +305,10 @@ function SetFormation(characterId, formationName, position)
     var queryResult = API.queryItems(colPlayerFormation, API.S("playerId").eq(playerId), API.sort("timestamp", false));
     if (!queryResult.error())
     {
-        var result = queryResult.cursor();
-        while (result.hasNext())
+        var formationCursor = queryResult.cursor();
+        while (formationCursor && formationCursor.hasNext())
         {
-            var entry = result.next();
+            var entry = formationCursor.next();
             list.push(entry.getData());
         }
     }

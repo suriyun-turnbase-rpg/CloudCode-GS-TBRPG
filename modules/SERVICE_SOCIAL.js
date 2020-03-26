@@ -39,14 +39,14 @@ function FriendRequest(targetPlayerId)
     var friendQueryResult = API.queryItems(
         colPlayerFriend, 
         API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)));
-    var friendResult = friendQueryResult.cursor();
-    if (!friendResult.hasNext())
+    var cursor = friendQueryResult.cursor();
+    if (!cursor || !cursor.hasNext())
     {
         var requestQueryResult = API.queryItems(
             colPlayerFriendRequest, 
             API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)));
-        var requestResult = requestQueryResult.cursor();
-        if (!requestResult.hasNext())
+        var requestCursor = requestQueryResult.cursor();
+        if (!requestCursor || !requestCursor.hasNext())
         {
             var newId = GenerateUUID();
             var newRequestEntry = API.createItem(colPlayerFriendRequest, newId);
@@ -69,26 +69,26 @@ function FriendAccept(targetPlayerId)
     var requestQueryResult = API.queryItems(
         colPlayerFriendRequest, 
         API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)));
-    var requestResult = requestQueryResult.cursor();
-    if (requestResult.hasNext())
+    var requestCursor = requestQueryResult.cursor();
+    if (requestCursor && requestCursor.hasNext())
     {
-        requestResult.next().delete();
+        requestCursor.next().delete();
     }
     // Remove request for both side
     var requestQueryResultB = API.queryItems(
         colPlayerFriendRequest, 
         API.S("playerId").eq(targetPlayerId).and(API.S("targetPlayerId").eq(playerId)));
-    var requestResultB = requestQueryResultB.cursor();
-    if (requestResultB.hasNext())
+    var requestCursorB = requestQueryResultB.cursor();
+    if (requestCursorB && requestCursorB.hasNext())
     {
-        requestResultB.next().delete();
+        requestCursorB.next().delete();
     }
     // Add friend
     var friendQueryResult = API.queryItems(
         colPlayerFriend, 
         API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)));
-    var friendResult = friendQueryResult.cursor();
-    if (!friendResult.hasNext())
+    var friendCursor = friendQueryResult.cursor();
+    if (!friendCursor || !friendCursor.hasNext())
     {
         var newId = GenerateUUID();
         var newFriendEntry = API.createItem(colPlayerFriend, newId);
@@ -104,8 +104,8 @@ function FriendAccept(targetPlayerId)
     var friendQueryResultB = API.queryItems(
         colPlayerFriend, 
         API.S("playerId").eq(targetPlayerId).and(API.S("targetPlayerId").eq(playerId)));
-    var friendResultB = friendQueryResultB.cursor();
-    if (!friendResultB.hasNext())
+    var friendCursorB = friendQueryResultB.cursor();
+    if (!friendCursorB || !friendCursorB.hasNext())
     {
         var newId = GenerateUUID();
         var newFriendEntry = API.createItem(colPlayerFriend, newId);
@@ -127,19 +127,19 @@ function FriendDecline(targetPlayerId)
     var requestQueryResult = API.queryItems(
         colPlayerFriendRequest, 
         API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)));
-    var requestResult = requestQueryResult.cursor();
-    if (requestResult.hasNext())
+    var requestCursor = requestQueryResult.cursor();
+    if (requestCursor && requestCursor.hasNext())
     {
-        requestResult.next().delete();
+        requestCursor.next().delete();
     }
     // Remove request for both side
     var requestQueryResultB = API.queryItems(
         colPlayerFriendRequest, 
         API.S("playerId").eq(targetPlayerId).and(API.S("targetPlayerId").eq(playerId)));
-    var requestResultB = requestQueryResultB.cursor();
-    if (requestResultB.hasNext())
+    var requestCursorB = requestQueryResultB.cursor();
+    if (requestCursorB && requestCursorB.hasNext())
     {
-        requestResultB.next().delete();
+        requestCursorB.next().delete();
     }
 }
 
@@ -150,10 +150,10 @@ function FriendDelete(targetPlayerId)
     var friendQueryResult = API.queryItems(
         colPlayerFriend, 
         API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)));
-    var friendResult = friendQueryResult.cursor();
-    if (friendResult.hasNext())
+    var friendCursor = friendQueryResult.cursor();
+    if (friendCursor && friendCursor.hasNext())
     {
-        friendResult.next().delete();
+        friendCursor.next().delete();
     }
 }
 
@@ -164,10 +164,10 @@ function FriendRequestDelete(targetPlayerId)
     var requestQueryResult = API.queryItems(
         colPlayerFriendRequest, 
         API.S("playerId").eq(playerId).and(API.S("targetPlayerId").eq(targetPlayerId)));
-    var requestResult = requestQueryResult.cursor();
-    if (requestResult.hasNext())
+    var requestCursor = requestQueryResult.cursor();
+    if (requestCursor && requestCursor.hasNext())
     {
-        requestResult.next().delete();
+        requestCursor.next().delete();
     }
 }
 
@@ -178,10 +178,10 @@ function FindUser(displayName)
     var playerId = player.getPlayerId();
     var list = [];
     var queryResult = API.queryItems(colPlayer, API.S("displayName").startsWith(displayName));
-    var result = queryResult.cursor();
-    while (result.hasNext())
+    var cursor = queryResult.cursor();
+    while (cursor && cursor.hasNext())
     {
-        var entry = result.next();
+        var entry = cursor.next();
         var data = entry.getData();
         var targetPlayerId = data.playerId;
         if (playerId === targetPlayerId)

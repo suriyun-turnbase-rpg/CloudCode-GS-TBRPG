@@ -51,10 +51,10 @@ function GetAchievementListInternal(playerId)
     var queryResult = API.queryItems(colPlayerAchievement, API.S("playerId").eq(playerId), API.sort("timestamp", false));
     if (!queryResult.error())
     {
-        var result = queryResult.cursor();
-        while (result.hasNext())
+        var cursor = queryResult.cursor();
+        while (cursor && cursor.hasNext())
         {
-            var entry = result.next();
+            var entry = cursor.next();
             list.push(entry.getData());
         }
     }
@@ -74,10 +74,10 @@ function GetItemListInternal(playerId)
     var queryResult = API.queryItems(colPlayerItem, API.S("playerId").eq(playerId), API.sort("timestamp", false));
     if (!queryResult.error())
     {
-        var result = queryResult.cursor();
-        while (result.hasNext())
+        var cursor = queryResult.cursor();
+        while (cursor && cursor.hasNext())
         {
-            var entry = result.next();
+            var entry = cursor.next();
             list.push(entry.getData());
         }
     }
@@ -114,10 +114,10 @@ function GetStaminaListInternal(playerId)
     var queryResult = API.queryItems(colPlayerStamina, API.S("playerId").eq(playerId), API.sort("timestamp", false));
     if (!queryResult.error())
     {
-        var result = queryResult.cursor();
-        while (result.hasNext())
+        var cursor = queryResult.cursor();
+        while (cursor && cursor.hasNext())
         {
-            var entry = result.next();
+            var entry = cursor.next();
             list.push(entry.getData());
         }
     }
@@ -137,10 +137,10 @@ function GetFormationListInternal(playerId)
     var queryResult = API.queryItems(colPlayerFormation, API.S("playerId").eq(playerId), API.sort("timestamp", false));
     if (!queryResult.error())
     {
-        var result = queryResult.cursor();
-        while (result.hasNext())
+        var cursor = queryResult.cursor();
+        while (cursor && cursor.hasNext())
         {
-            var entry = result.next();
+            var entry = cursor.next();
             list.push(entry.getData());
         }
     }
@@ -160,10 +160,10 @@ function GetUnlockItemListInternal(playerId)
     var queryResult = API.queryItems(colPlayerUnlockItem, API.S("playerId").eq(playerId), API.sort("timestamp", false));
     if (!queryResult.error())
     {
-        var result = queryResult.cursor();
-        while (result.hasNext())
+        var cursor = queryResult.cursor();
+        while (cursor && cursor.hasNext())
         {
-            var entry = result.next();
+            var entry = cursor.next();
             list.push(entry.getData());
         }
     }
@@ -183,10 +183,10 @@ function GetClearStageListInternal(playerId)
     var queryResult = API.queryItems(colPlayerClearStage, API.S("playerId").eq(playerId), API.sort("timestamp", false));
     if (!queryResult.error())
     {
-        var result = queryResult.cursor();
-        while (result.hasNext())
+        var cursor = queryResult.cursor();
+        while (cursor && cursor.hasNext())
         {
-            var entry = result.next();
+            var entry = cursor.next();
             list.push(entry.getData());
         }
     }
@@ -225,10 +225,10 @@ function GetFriendList()
     var playerId = player.getPlayerId();
     var list = [];
     var queryResult = API.queryItems(colPlayerFriend, API.S("playerId").eq(playerId), API.sort("timestamp", false));
-    var result = queryResult.cursor();
-    while (result.hasNext())
+    var cursor = queryResult.cursor();
+    while (cursor && cursor.hasNext())
     {
-        var entry = result.next();
+        var entry = cursor.next();
         var data = entry.getData();
         var targetPlayerId = data.targetPlayerId;
         if (playerId === targetPlayerId)
@@ -253,10 +253,10 @@ function GetFriendRequestList()
     var playerId = player.getPlayerId();
     var list = [];
     var queryResult = API.queryItems(colPlayerFriendRequest, API.S("targetPlayerId").eq(playerId), API.sort("timestamp", false));
-    var result = queryResult.cursor();
-    while (result.hasNext())
+    var cursor = queryResult.cursor();
+    while (cursor && cursor.hasNext())
     {
-        var entry = result.next();
+        var entry = cursor.next();
         var data = entry.getData();
         var targetPlayerId = data.playerId;
         if (playerId === targetPlayerId)
@@ -281,10 +281,10 @@ function GetPendingRequestList()
     var playerId = player.getPlayerId();
     var list = [];
     var queryResult = API.queryItems(colPlayerFriendRequest, API.S("playerId").eq(playerId), API.sort("timestamp", false));
-    var result = queryResult.cursor();
-    while (result.hasNext())
+    var cursor = queryResult.cursor();
+    while (cursor && cursor.hasNext())
     {
-        var entry = result.next();
+        var entry = cursor.next();
         var data = entry.getData();
         var targetPlayerId = data.targetPlayerId;
         if (playerId === targetPlayerId)

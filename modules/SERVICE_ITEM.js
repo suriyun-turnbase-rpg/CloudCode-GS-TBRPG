@@ -44,12 +44,12 @@ function LevelUpItem(itemId, materials)
         colPlayerItem,
         API.S("playerId").eq(playerId).and(API.S("id").eq(itemId)),
         API.sort("id", false));
-    var result = queryResult.cursor();
+    var itemCursor = queryResult.cursor();
     var item;
     var itemEntry;
-    if (result.hasNext())
+    if (itemCursor && itemCursor.hasNext())
     {
-        itemEntry = result.next();
+        itemEntry = itemCursor.next();
         item = itemEntry.getData();
     }
     if (!item)
@@ -72,12 +72,12 @@ function LevelUpItem(itemId, materials)
                 colPlayerItem,
                 API.S("playerId").eq(playerId).and(API.S("id").eq(materialItemId)),
                 API.sort("id", false));
-            var findMaterialResult = findMaterialQueryResult.cursor();
+            var materialCursor = findMaterialQueryResult.cursor();
             var foundItem;
             var foundItemEntry;
-            if (findMaterialResult.hasNext())
+            if (materialCursor && materialCursor.hasNext())
             {
-                foundItemEntry = findMaterialResult.next();
+                foundItemEntry = materialCursor.next();
                 foundItem = foundItemEntry.getData();
             }
             
@@ -171,12 +171,12 @@ function EvolveItem(itemId, materials)
         colPlayerItem,
         API.S("playerId").eq(playerId).and(API.S("id").eq(itemId)),
         API.sort("id", false));
-    var result = queryResult.cursor();
+    var itemCursor = queryResult.cursor();
     var item;
     var itemEntry;
-    if (result.hasNext())
+    if (itemCursor && itemCursor.hasNext())
     {
-        itemEntry = result.next();
+        itemEntry = itemCursor.next();
         item = itemEntry.getData();
     }
     if (!item)
@@ -199,12 +199,12 @@ function EvolveItem(itemId, materials)
                 colPlayerItem,
                 API.S("playerId").eq(playerId).and(API.S("id").eq(materialItemId)),
                 API.sort("id", false));
-            var findMaterialResult = findMaterialQueryResult.cursor();
+            var materialCursor = findMaterialQueryResult.cursor();
             var foundItem;
             var foundItemEntry;
-            if (findMaterialResult.hasNext())
+            if (materialCursor && materialCursor.hasNext())
             {
-                foundItemEntry = findMaterialResult.next();
+                foundItemEntry = materialCursor.next();
                 foundItem = foundItemEntry.getData();
             }
             
@@ -336,12 +336,12 @@ function SellItems(items)
             colPlayerItem,
             API.S("playerId").eq(playerId).and(API.S("id").eq(sellingItemId)),
             API.sort("id", false));
-        var findSellingItemResult = findSellingItemQueryResult.cursor();
+        var findSellingItemCursor = findSellingItemQueryResult.cursor();
         var foundItem;
         var foundItemEntry;
-        if (findSellingItemResult.hasNext())
+        if (findSellingItemCursor && findSellingItemCursor.hasNext())
         {
-            foundItemEntry = findSellingItemResult.next();
+            foundItemEntry = findSellingItemCursor.next();
             foundItem = foundItemEntry.getData();
         }
         
@@ -440,7 +440,7 @@ function EquipItem(characterId, equipmentId, equipPosition)
                 colPlayerItem,
                 API.S("playerId").eq(playerId));
             var unEquipItemCursor = unEquipItemQueryResult.cursor();
-            while (unEquipItemCursor.hasNext())
+            while (unEquipItemCursor && unEquipItemCursor.hasNext())
             {
                 var unEquipItemDoc = unEquipItemCursor.next();
                 var unEquipItem = unEquipItemDoc.getData();
