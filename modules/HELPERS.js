@@ -1316,7 +1316,7 @@ function GetPlayerIds()
     var resultCursor = queryResult.cursor();
     while (resultCursor && resultCursor.hasNext())
     {
-        var entry = result.next();
+        var entry = resultCursor.next();
         var data = entry.getData();
         playerIds.push(data.playerId);
     }
